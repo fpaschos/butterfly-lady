@@ -11,7 +11,7 @@ export const rollCommand: Command = {
     .addStringOption(option =>
       option
         .setName('expression')
-        .setDescription('Roll expression (e.g., 5k3, 7k4+10, 10k5-5)')
+        .setDescription('Roll expression with flags (e.g., 5k3, 7k4 m tn:20 r:2)')
         .setRequired(true)
     ),
   
@@ -19,11 +19,11 @@ export const rollCommand: Command = {
     const expressionInput = interaction.options.getString('expression', true);
     
     try {
-      // Parse the roll expression
-      const expression = parseRollExpression(expressionInput);
+      // Parse the roll expression and options
+      const { expression, options } = parseRollExpression(expressionInput);
       
-      // Execute the roll
-      const result = executeRoll(expression);
+      // Execute the roll with all options
+      const result = executeRoll(expression, options);
       
       // Create and send the embed
       const embed = createRollEmbed(result, interaction.user.username);
@@ -39,15 +39,19 @@ export const rollCommand: Command = {
   
   metadata: {
     name: 'roll',
-    description: 'Roll dice using the Roll & Keep system from L5R 4th Edition',
-    usage: '/roll <expression>',
+    description: 'Roll dice using the Roll & Keep system from L5R 4th Edition with advanced mechanics',
+    usage: '/roll <expression> [flags] [tn:<num>] [r:<num>] [e or e:<num>]',
     examples: [
-      '/roll 5k3 - Roll 5 dice, keep 3 highest',
-      '/roll 7k4+10 - Roll 7 dice, keep 4, add 10',
-      '/roll 10k5-5 - Roll 10 dice, keep 5, subtract 5',
-      '/roll 3k2 - Simple roll for a low-skilled character'
+      '/roll 5k3 - Basic roll (10s explode)',
+      '/roll 5k3 u - Unskilled (no explosions)',
+      '/roll 7k4 m - Mastery (9s and 10s explode)',
+      '/roll 7k4+10 tn:20 - Roll vs Target Number 20',
+      '/roll 8k5 tn:25 r:2 - Roll with 2 called raises (TN becomes 30)',
+      '/roll 6k3 e - Emphasis (reroll 1s, e defaults to e:1)',
+      '/roll 6k3 e:2 - Emphasis (reroll dice showing ≤2)',
+      '/roll 8k5 m e:2 tn:25 r:1 - Everything combined',
+      '/roll 12k5+10 m tn:30 - Ten Dice Rule auto-applies (becomes 10k6+10)'
     ],
     category: 'dice'
   }
 };
-

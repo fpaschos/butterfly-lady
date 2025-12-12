@@ -78,31 +78,54 @@ async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promis
     .setDescription(
       'A helpful bot for Legend of the Five Rings 4th Edition RPG.\n\n' +
       '**The Way of the Samurai**\n' +
-      'This bot uses the Roll & Keep dice system where you roll multiple d10s ' +
-      'and keep the highest results. When a die shows 10, it explodes!'
+      'Advanced Roll & Keep system with mastery, emphasis, raises, and more!'
     )
     .addFields(
       {
-        name: '🎲 Dice Commands',
+        name: '🎲 Dice Rolling',
         value: 
-          '`/roll <expression>` - Roll dice with L5R rules\n' +
-          '• Format: XkY (roll X dice, keep Y)\n' +
-          '• Add modifiers: XkY+Z or XkY-Z\n' +
-          '• Example: `/roll 5k3+10`',
+          '`/roll <expr> [flags] [options]`\n' +
+          '• Basic: `/roll 5k3` (10s explode)\n' +
+          '• Unskilled: `/roll 5k3 u` (no explosions)\n' +
+          '• Mastery: `/roll 7k4 m` (9s and 10s explode)\n' +
+          '• Target Number: `/roll 5k3 tn:15`\n' +
+          '• Raises: `/roll 7k4 tn:20 r:2`\n' +
+          '• Emphasis: `/roll 6k3 e` (reroll 1s, e=e:1)\n' +
+          '• Emphasis custom: `/roll 6k3 e:2` (reroll ≤2)\n' +
+          '• Combined: `/roll 8k5 m e:2 tn:25 r:1`',
         inline: false
       },
       {
         name: '📖 Utility Commands',
         value: 
           '`/help` - Show this help message\n' +
-          '`/help <command>` - Detailed help for a command',
+          '`/help roll` - Detailed roll command help',
         inline: false
       },
       {
-        name: '💥 Rule of 10',
+        name: '💥 Explosion Modes',
         value:
-          'When a d10 shows 10, it "explodes" - roll again and add to the total!\n' +
-          'A die can explode multiple times.',
+          '**Skilled** (default): 10s explode\n' +
+          '**Unskilled** (u): No explosions\n' +
+          '**Mastery** (m): 9s and 10s explode',
+        inline: false
+      },
+      {
+        name: '📏 Ten Dice Rule',
+        value:
+          'Rolls over 10k10 auto-convert:\n' +
+          '• 12k4 → 10k5\n' +
+          '• 14k12 → 10k10+12\n' +
+          'Extra dice become bonuses',
+        inline: false
+      },
+      {
+        name: '🎯 Target Numbers & Raises',
+        value:
+          '• Set TN: `tn:15`\n' +
+          '• Call raises: `r:2` (+5 to TN per raise)\n' +
+          '• Auto-calculates achieved raises\n' +
+          '• Shows success/failure',
         inline: false
       },
       {
@@ -114,7 +137,7 @@ async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promis
         inline: false
       }
     )
-    .setFooter({ text: 'For detailed command help, use /help <command>' })
+    .setFooter({ text: 'For detailed command help, use /help roll' })
     .setTimestamp();
   
   await interaction.reply({ embeds: [embed] });
@@ -133,23 +156,32 @@ function getCommandHelpData(commandName: string) {
     roll: {
       name: 'roll',
       description: 
-        '**Roll & Keep Dice System**\n\n' +
-        'Roll multiple d10s and keep the highest results. ' +
-        'This is the core mechanic of L5R 4th Edition.\n\n' +
-        '**The Rule of 10:** When a die shows 10, it explodes! ' +
-        'Roll that die again and add the new result to its total. ' +
-        'A die can explode multiple times.\n\n' +
-        '**Format:** `XkY[+/-Z]`\n' +
-        '• X = number of dice to roll (1-100)\n' +
-        '• Y = number of dice to keep (1-X)\n' +
-        '• Z = optional modifier to add or subtract',
-      usage: '/roll <expression>',
+        '**Roll & Keep Dice System (L5R 4e)**\n\n' +
+        'Roll multiple d10s and keep the highest results.\n\n' +
+        '**Explosion Modes:**\n' +
+        '• **Skilled** (default): 10s explode\n' +
+        '• **Unskilled** (u flag): No explosions\n' +
+        '• **Mastery** (m flag): 9s and 10s explode\n\n' +
+        '**Format:** `XkY[+/-Z] [flags] [tn:N] [r:N] [e or e:N]`\n' +
+        '• XkY = roll X dice, keep Y highest\n' +
+        '• +/-Z = optional modifier\n' +
+        '• u = unskilled (no explosions)\n' +
+        '• m = mastery (9s and 10s explode)\n' +
+        '• tn:N = target number to beat\n' +
+        '• r:N = called raises (+5 to TN each)\n' +
+        '• e or e:N = emphasis (reroll dice ≤N, e defaults to e:1)\n\n' +
+        '**Ten Dice Rule:** Rolls over 10k10 automatically convert',
+      usage: '/roll <expression> [flags] [options]',
       examples: [
-        '/roll 5k3 - Roll 5d10, keep 3 highest',
-        '/roll 7k4+10 - Roll 7d10, keep 4, add 10 to result',
-        '/roll 10k5-5 - Roll 10d10, keep 5, subtract 5',
-        '/roll 3k2 - Simple roll (beginner character)',
-        '/roll 12k6+15 - Complex roll (master samurai)'
+        '/roll 5k3 - Basic skilled roll',
+        '/roll 5k3 u - Unskilled (no explosions)',
+        '/roll 7k4 m - Mastery (9s and 10s explode)',
+        '/roll 7k4+10 tn:20 - Roll vs TN 20',
+        '/roll 8k5 tn:25 r:2 - 2 called raises (TN becomes 30)',
+        '/roll 6k3 e - Emphasis (reroll 1s, e defaults to e:1)',
+        '/roll 6k3 e:2 - Emphasis (reroll ≤2)',
+        '/roll 8k5 m e:2 tn:25 r:1 - Full combo',
+        '/roll 12k5 m tn:30 - Ten Dice Rule applies (→10k6)'
       ]
     },
     help: {

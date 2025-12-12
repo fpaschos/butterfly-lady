@@ -1,4 +1,8 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { 
+  SlashCommandBuilder, 
+  ChatInputCommandInteraction,
+  SlashCommandOptionsOnlyBuilder 
+} from 'discord.js';
 
 /**
  * Metadata for a bot command
@@ -21,7 +25,7 @@ export interface CommandMetadata {
  */
 export interface Command {
   /** Discord slash command builder */
-  data: SlashCommandBuilder;
+  data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
   /** Command execution handler */
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
   /** Metadata for help system */

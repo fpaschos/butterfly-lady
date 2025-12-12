@@ -4,20 +4,24 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
 
 ## Features
 
-### ✅ Phase 1 (Current)
-- **🎲 Roll & Keep Dice System** - Full L5R 4th Edition dice rolling
-  - Support for XkY format (e.g., `5k3`, `7k4+10`)
-  - Rule of 10 (exploding dice)
-  - Modifiers (+/- values)
-  - Beautiful Discord embeds with roll breakdowns
+### ✅ Phase 1 & 2 (Current)
+- **🎲 Advanced Roll & Keep System** - Full L5R 4th Edition mechanics
+  - **Explosion Modes**: Skilled (10s), Unskilled (none), Mastery (9s & 10s)
+  - **Ten Dice Rule**: Automatic conversion for rolls >10k10
+  - **Target Numbers**: Roll vs TN with success/failure indicators
+  - **Raises**: Called raises (+5 to TN each) with auto-calculation
+  - **Emphasis**: Reroll low dice on specialized skills
+  - **Modifiers**: Add/subtract bonuses
+  - Beautiful Discord embeds with detailed breakdowns
 - **📖 Enhanced Help System** - Interactive help for all commands
 - **🐳 Docker Support** - Easy local deployment with Docker Compose
+- **🎯 Seedrandom RNG** - OS-entropy based randomness with testing support
 - **🗄️ PostgreSQL Ready** - Database prepared for future features
 
 ### 🔮 Coming Soon
-- **Phase 2**: Statistics Emulator - Probability simulations for rolls
-- **Phase 3**: RAG Integration - L5R lore/rules lookup with AI (pgvector + LLM)
-- **Phase 4**: Character Management - Store character sheets with JSONB
+- **Phase 3**: Statistics Emulator - Probability simulations for rolls
+- **Phase 4**: RAG Integration - L5R lore/rules lookup with AI (pgvector + LLM)
+- **Phase 5**: Character Management - Store character sheets with JSONB
 
 ## Quick Start
 
@@ -87,33 +91,57 @@ pnpm start
 
 ## Commands
 
-### `/roll <expression>`
-Roll dice using L5R 4th Edition Roll & Keep system.
+### `/roll <expression> [flags] [options]`
+Roll dice using L5R 4th Edition Roll & Keep system with advanced mechanics.
 
-**Format:** `XkY[+/-Z]`
-- X = number of dice to roll (1-100)
-- Y = number of dice to keep (1-X)
-- Z = optional modifier
+**Format:** `XkY[+/-Z] [flags] [tn:N] [r:N] [e or e:N]`
+
+**Flags (before tn/raises):**
+- _(default)_ = Skilled (10s explode)
+- `u` = Unskilled (no explosions)
+- `m` = Mastery (9s and 10s explode)
+
+**Options:**
+- `tn:N` = Target Number to beat
+- `r:N` = Called raises (+5 to TN each)
+- `e` or `e:N` = Emphasis (reroll dice ≤N, e defaults to e:1)
 
 **Examples:**
 ```
-/roll 5k3          Roll 5 dice, keep 3 highest
-/roll 7k4+10       Roll 7, keep 4, add 10
-/roll 10k5-5       Roll 10, keep 5, subtract 5
-/roll 3k2          Simple beginner roll
+/roll 5k3                    Basic roll (10s explode)
+/roll 5k3 u                  Unskilled (no explosions)
+/roll 7k4 m                  Mastery (9s and 10s explode)
+/roll 7k4+10 tn:20           Roll vs TN 20
+/roll 8k5 tn:25 r:2          2 called raises (TN becomes 30)
+/roll 6k3 e                  Emphasis (reroll 1s, e=e:1)
+/roll 6k3 e:2 tn:15          Emphasis (reroll ≤2)
+/roll 12k5+10 m tn:30        Ten Dice Rule applies (→10k6+10)
+/roll 8k5 m e:2 tn:25 r:2    Everything combined
 ```
 
-**The Rule of 10:**
-When a d10 shows 10, it "explodes" - roll again and add to the total! A die can explode multiple times (10+10+3 = 23).
+**Explosion Modes:**
+- **Skilled** (default): 10s explode - roll again and add
+- **Unskilled** (u): No explosions
+- **Mastery** (m): 9s and 10s both explode
+
+**Ten Dice Rule:**
+Rolls over 10k10 auto-convert:
+- `12k4` → `10k5` (2 extra rolled → 1 kept)
+- `14k12` → `10k10+12` (excess becomes bonuses)
 
 ### `/help [command]`
 Get help with bot commands.
 
 **Examples:**
 ```
-/help              Show all commands
+/help              Show all commands with Phase 2 features
 /help roll         Detailed help for roll command
 ```
+
+**Key Changes:**
+- Emphasis `e` defaults to `e:1` (reroll 1s)
+- All rolls show detailed breakdown
+- Removed skill names (not needed)
 
 ## Project Structure
 
