@@ -31,7 +31,7 @@ This is a TypeScript Discord bot for Legend of the Five Rings 4th Edition RPG.
 - Always handle interaction errors gracefully
 
 ## Future Phases
-- Phase 2: Statistics/probability simulation
-- Phase 3: RAG with pgvector + LLM (OpenAI/Anthropic/NotebookLM)
-- Phase 4: Character management with PostgreSQL + JSONB
+- Phase 3: Statistics/probability simulation
+- Phase 4: RAG/LLM integration (OpenAI/Anthropic/NotebookLM)
+- Phase 5: Character management with flexible storage
 

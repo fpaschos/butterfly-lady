@@ -16,12 +16,11 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
 - **📖 Enhanced Help System** - Interactive help for all commands
 - **🐳 Docker Support** - Easy local deployment with Docker Compose
 - **🎯 Seedrandom RNG** - OS-entropy based randomness with testing support
-- **🗄️ PostgreSQL Ready** - Database prepared for future features
 
 ### 🔮 Coming Soon
 - **Phase 3**: Statistics Emulator - Probability simulations for rolls
-- **Phase 4**: RAG Integration - L5R lore/rules lookup with AI (pgvector + LLM)
-- **Phase 5**: Character Management - Store character sheets with JSONB
+- **Phase 4**: RAG Integration - L5R lore/rules lookup with AI
+- **Phase 5**: Character Management - Store character sheets
 
 ## Quick Start
 
@@ -149,23 +148,22 @@ Get help with bot commands.
 butterfly-lady/
 ├── docker-compose.yml       # Production Docker setup
 ├── docker-compose.dev.yml   # Development Docker setup
-├── Dockerfile              # Production build
-├── Dockerfile.dev          # Development build
-├── package.json            # Dependencies and scripts
-├── tsconfig.json           # TypeScript configuration
-├── env.example             # Environment template
+├── Dockerfile               # Multi-stage build (prod + dev)
+├── package.json             # Dependencies and scripts
+├── tsconfig.json            # TypeScript configuration
+├── env.example              # Environment template
 ├── data/
-│   └── schools.json        # L5R schools (for Phase 4)
+│   └── schools.json         # L5R schools (for Phase 4)
 └── src/
-    ├── index.ts            # Bot entry point
-    ├── commands/           # Slash commands
+    ├── index.ts             # Bot entry point
+    ├── commands/            # Slash commands
     │   ├── roll.ts
     │   └── help.ts
-    ├── utils/              # Utilities
-    │   ├── dice.ts         # Roll & Keep logic
-    │   ├── parser.ts       # Expression parser
-    │   └── formatter.ts    # Discord embeds
-    └── types/              # TypeScript types
+    ├── utils/               # Utilities
+    │   ├── dice.ts          # Roll & Keep logic
+    │   ├── parser.ts        # Expression parser
+    │   └── formatter.ts     # Discord embeds
+    └── types/               # TypeScript types
         ├── dice.ts
         └── commands.ts
 ```
@@ -211,9 +209,9 @@ The project uses strict TypeScript configuration:
 
 ### Docker
 
-- **Production**: Multi-stage build, optimized image
+- **Multi-stage build**: Single Dockerfile with `development` and `production` targets
+- **Production**: Optimized image with only runtime dependencies
 - **Development**: Hot-reload with mounted volumes
-- **PostgreSQL**: Included for future features
 
 ## Troubleshooting
 
@@ -238,16 +236,15 @@ The project uses strict TypeScript configuration:
 - **Runtime**: Node.js 20
 - **Framework**: Discord.js v14
 - **Package Manager**: pnpm
-- **Database**: PostgreSQL 16 (prepared for future)
 - **Containerization**: Docker & Docker Compose
 - **Build Tool**: TypeScript Compiler (tsc)
 
 ## Contributing
 
 This bot is in active development. Planned features:
-- Phase 2: Roll statistics and probability analysis
-- Phase 3: RAG-based L5R lore/rules lookup (pgvector + OpenAI/Anthropic)
-- Phase 4: Character sheet management with JSONB storage
+- Phase 3: Roll statistics and probability analysis
+- Phase 4: RAG-based L5R lore/rules lookup
+- Phase 5: Character sheet management
 
 ## Reference
 

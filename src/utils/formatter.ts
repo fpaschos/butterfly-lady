@@ -6,7 +6,7 @@ import { formatDieResult } from './dice.js';
  * Create a Discord embed for a roll result with Phase 2 features
  */
 export function createRollEmbed(result: RollResult, username: string): EmbedBuilder {
-  const { expression, options } = result;
+  const { options } = result;
   
   // Determine color based on success/failure or explosion mode
   let color = 0x8B0000; // Dark red (default L5R)

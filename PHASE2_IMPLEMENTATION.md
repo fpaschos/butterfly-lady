@@ -214,14 +214,12 @@ All Phase 2 requirements have been met:
 - Success probability calculator
 
 **Phase 4**: RAG & AI Integration
-- PostgreSQL with pgvector
 - L5R rulebook embeddings
 - Natural language queries
 - Semantic search
 
 **Phase 5**: Character Management
 - Character sheet storage
-- JSONB-based flexible schema
 - Character quick reference
 - Roll with character stats
 

@@ -12,9 +12,8 @@ butterfly-lady/
 ├── .dockerignore            # Docker build exclusions
 ├── .gitignore               # Git exclusions
 ├── docker-compose.yml       # Production Docker setup
-├── docker-compose.dev.yml   # Development Docker setup with hot-reload
-├── Dockerfile               # Production multi-stage build
-├── Dockerfile.dev           # Development container
+├── docker-compose.dev.yml   # Development Docker setup
+├── Dockerfile               # Multi-stage build (prod + dev targets)
 ├── env.example              # Environment template
 ├── package.json             # Dependencies and scripts
 ├── pnpm-workspace.yaml      # pnpm workspace config
@@ -88,11 +87,10 @@ butterfly-lady/
 - Error embeds
 
 ### 7. Docker Support ✅
-- **Files**: `Dockerfile`, `docker-compose.yml`, etc.
-- Production: Multi-stage optimized build
+- **Files**: `Dockerfile`, `docker-compose.yml`, `docker-compose.dev.yml`
+- Single multi-stage Dockerfile with `development` and `production` targets
+- Production: Optimized build with only runtime dependencies
 - Development: Hot-reload with mounted volumes
-- PostgreSQL: Ready for Phase 4
-- Health checks
 
 ### 8. TypeScript Excellence ✅
 - **File**: `tsconfig.json`
@@ -104,7 +102,6 @@ butterfly-lady/
 ### 9. Future-Ready Structure ✅
 - **File**: `data/schools.json`
 - Empty schools data structure
-- PostgreSQL in docker-compose
 - Extensible command system
 - Ready for RAG/LLM integration
 
@@ -116,7 +113,6 @@ butterfly-lady/
 | Runtime | Node.js | 20 (Alpine) |
 | Framework | Discord.js | 14.14.1 |
 | Package Manager | pnpm | 8+ |
-| Database | PostgreSQL | 16 (Alpine) |
 | Container | Docker | Latest |
 | Orchestration | Docker Compose | 3.8 |
 
@@ -136,9 +132,9 @@ butterfly-lady/
 - Declaration files
 
 ### Docker
-- Multi-stage production build
-- Development with hot-reload
-- PostgreSQL with health checks
+- Single multi-stage Dockerfile with targets
+- Production target: optimized runtime
+- Development target: hot-reload support
 - Volume mounts for development
 - Network isolation
 
@@ -228,15 +224,13 @@ docker-compose -f docker-compose.dev.yml up --build
 - Help players understand odds
 
 ### Phase 3: RAG Integration
-- PostgreSQL with pgvector extension
 - Embed L5R PDFs, rulebooks, lore
 - LLM integration (OpenAI/Anthropic/NotebookLM)
 - Natural language rules lookup
 - Semantic search for L5R content
 
 ### Phase 4: Character Management
-- Store character sheets in PostgreSQL
-- Use JSONB for flexible data structure
+- Store character sheets
 - Track character stats, skills, advantages
 - Load school data from schools.json
 - Quick character reference during gameplay
@@ -270,12 +264,6 @@ docker-compose -f docker-compose.dev.yml up --build
 - Disk space efficient
 - Strict dependency resolution
 
-### Why PostgreSQL?
-- Already familiar with SQL and JSONB
-- pgvector for Phase 3 RAG features
-- Robust for production
-- Good for structured and unstructured data
-
 ### Why Discord.js v14?
 - Latest stable version
 - Slash commands (modern Discord API)
@@ -285,7 +273,6 @@ docker-compose -f docker-compose.dev.yml up --build
 ### Why Docker?
 - Consistent environment
 - Easy deployment
-- PostgreSQL included
 - Development/production parity
 
 ## 🐛 Known Limitations
@@ -294,8 +281,6 @@ docker-compose -f docker-compose.dev.yml up --build
   - Solution: Test in a single server first
 - Docker needs to rebuild for code changes (production)
   - Solution: Use dev compose for development
-- No database migrations yet
-  - Solution: Will implement in Phase 4
 
 ## 🎯 Success Criteria
 
@@ -303,7 +288,6 @@ All Phase 1 requirements met:
 
 ✅ TypeScript + pnpm project structure
 ✅ Docker Compose for local deployment
-✅ PostgreSQL ready for future features
 ✅ Roll & Keep dice system (XkY format)
 ✅ Rule of 10 (exploding dice)
 ✅ Modifier support (+/-)

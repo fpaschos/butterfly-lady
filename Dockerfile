@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS base
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -7,7 +7,7 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -20,8 +20,12 @@ COPY data ./data
 # Build the application
 RUN pnpm run build
 
-# Production stage
-FROM node:20-alpine
+# Development stage
+FROM base AS development
+CMD ["pnpm", "run", "dev"]
+
+# Production stage (default)
+FROM node:20-alpine AS production
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -29,14 +33,14 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile
 
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/data ./data
+# Copy built application from base
+COPY --from=base /app/dist ./dist
+COPY --from=base /app/data ./data
 
 # Run as non-root user
 USER node
