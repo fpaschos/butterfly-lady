@@ -14,6 +14,7 @@ import { helpCommand } from './commands/help.js';
 // Environment configuration
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const STATUS_CHANNEL_ID = process.env.STATUS_CHANNEL_ID; // Optional: for bot status notifications
 
 if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
   console.error('❌ Missing required environment variables:');
@@ -65,6 +66,29 @@ client.once('ready', async () => {
   try {
     await registerSlashCommands();
     console.log('✅ Slash commands registered successfully');
+    
+    // Set bot status to show it's ready for use
+    client.user.setPresence({
+      activities: [{
+        name: 'Roll & Keep dice | /help',
+        type: 0 // Playing
+      }],
+      status: 'online'
+    });
+    console.log('🎭 Bot presence set');
+    
+    // Optional: Send startup notification to status channel
+    if (STATUS_CHANNEL_ID) {
+      try {
+        const channel = await client.channels.fetch(STATUS_CHANNEL_ID);
+        if (channel?.isTextBased() && 'send' in channel) {
+          await channel.send('🦋 **Butterfly Lady is now online!**\nReady to roll some dice for Rokugan.');
+          console.log('📢 Startup notification sent');
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not send startup notification:', error);
+      }
+    }
   } catch (error) {
     console.error('❌ Failed to register slash commands:', error);
   }
@@ -127,18 +151,69 @@ async function registerSlashCommands(): Promise<void> {
   );
 }
 
+// Shutdown flag to prevent multiple shutdown calls
+let isShuttingDown = false;
+
 /**
  * Graceful shutdown
  */
 async function shutdown(signal: string): Promise<void> {
+  // Prevent multiple shutdown calls
+  if (isShuttingDown) {
+    return;
+  }
+  isShuttingDown = true;
+  
   console.log(`\n📴 Received ${signal}, shutting down gracefully...`);
   
-  client.destroy();
-  process.exit(0);
+  try {
+    // Set status to invisible immediately
+    if (client.user) {
+      try {
+        client.user.setStatus('invisible');
+        console.log('👻 Set status to invisible');
+      } catch (err) {
+        // Ignore errors if already disconnected
+      }
+    }
+    
+    // Optional: Send shutdown notification and WAIT for it
+    if (STATUS_CHANNEL_ID && client.isReady()) {
+      try {
+        const channel = await client.channels.fetch(STATUS_CHANNEL_ID);
+        if (channel?.isTextBased() && 'send' in channel) {
+          await channel.send('🦋 **Butterfly Lady is shutting down...**\nI\'ll be back soon!');
+          console.log('📢 Shutdown notification sent');
+        }
+      } catch (err) {
+        console.warn('⚠️ Could not send shutdown notification:', err);
+      }
+    }
+    
+    // NOW destroy the client after message is sent
+    client.destroy();
+    console.log('✅ Shutdown complete');
+    
+    // Exit cleanly
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+    // Make sure we still destroy and exit on error
+    client.destroy();
+    process.exit(1);
+  }
 }
 
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
+// Handle shutdown signals - must handle async
+process.on('SIGINT', () => {
+  // Don't await here, let the async function run
+  shutdown('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  // Don't await here, let the async function run
+  shutdown('SIGTERM');
+});
 
 // Start the bot
 console.log('🦋 Starting Butterfly Lady...');
