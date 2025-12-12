@@ -1,0 +1,37 @@
+# Butterfly Lady Discord Bot - Cursor Rules
+
+## Project Context
+This is a TypeScript Discord bot for Legend of the Five Rings 4th Edition RPG.
+- Uses Discord.js v14 with slash commands
+- Implements Roll & Keep dice system with exploding dice (Rule of 10)
+- Future phases: statistics, RAG/LLM integration, character management
+
+## Code Style
+- TypeScript strict mode
+- ESM modules (use .js extensions in imports)
+- Functional programming preferred for utilities
+- Clear comments explaining L5R mechanics
+
+## File Organization
+- Commands go in `src/commands/`
+- Utilities go in `src/utils/`
+- Types go in `src/types/`
+- All commands must implement the Command interface
+
+## L5R 4th Edition Rules
+- Roll & Keep: Roll X d10s, keep Y highest
+- Rule of 10: When a die shows 10, roll again and add (can chain)
+- Format: XkY[+/-Z] where Z is optional modifier
+- Kept dice are summed, then modifier applied
+
+## Discord Integration
+- Use slash commands (not prefix commands)
+- Use embeds for rich formatting
+- Error messages should be ephemeral
+- Always handle interaction errors gracefully
+
+## Future Phases
+- Phase 2: Statistics/probability simulation
+- Phase 3: RAG with pgvector + LLM (OpenAI/Anthropic/NotebookLM)
+- Phase 4: Character management with PostgreSQL + JSONB
+

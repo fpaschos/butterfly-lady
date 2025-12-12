@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: butterfly-lady-bot-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount source code for hot-reload
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./tsconfig.json:/app/tsconfig.json
+    networks:
+      - butterfly-network
+    command: pnpm run dev
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: butterfly-lady-db-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-butterfly}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_production}
+      - POSTGRES_DB=${POSTGRES_DB:-butterfly_lady}
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-butterfly}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - butterfly-network
+
+volumes:
+  postgres-data-dev:
+    driver: local
+
+networks:
+  butterfly-network:
+    driver: bridge
+
