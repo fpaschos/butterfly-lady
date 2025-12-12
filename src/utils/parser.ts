@@ -3,9 +3,9 @@ import { RollExpression, RollOptions, ExplosionMode } from '../types/dice.js';
 /**
  * Parse a Roll & Keep expression with optional flags and options
  * 
- * Format: XkY[+/-Z] [flags] [tn:N] [r:N] [e:N]
+ * Format: XkY [+/-Z] [flags] [tn:N] [r:N] [e:N]
  * - XkY: roll X dice, keep Y
- * - +/-Z: optional modifier
+ * - +/-Z: optional modifier (can be attached to XkY or separate, at any position)
  * - Flags (before tn/raises): u (unskilled), m (mastery)
  * - e or e:N or emphasis:N - emphasis threshold (e defaults to e:1)
  * - tn:N or t:N or vs:N - target number
@@ -39,6 +39,16 @@ export function parseRollExpression(input: string): {
   
   for (let i = 1; i < parts.length; i++) {
     const part = parts[i].toLowerCase();
+    
+    // Check for standalone modifier (+X or -X)
+    const modifierMatch = part.match(/^([+\-]\d+)$/);
+    if (modifierMatch) {
+      const modifier = parseInt(modifierMatch[1], 10);
+      if (!isNaN(modifier)) {
+        expression.modifier += modifier;
+        continue;
+      }
+    }
     
     // Flags (single letter or word)
     if (part === 'u' || part === 'unskilled') {
