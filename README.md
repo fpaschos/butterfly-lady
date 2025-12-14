@@ -18,9 +18,13 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
 - **🎯 Seedrandom RNG** - OS-entropy based randomness with testing support
 
 ### 🔮 Coming Soon
-- **Phase 3**: Statistics Emulator - Probability simulations for rolls
-- **Phase 4**: RAG Integration - L5R lore/rules lookup with AI
-- **Phase 5**: Character Management - Store character sheets
+- **Phase 3**: VTT Integration - Virtual tabletop with React + Pixi.js
+  - Real-time map and token management
+  - Discord ↔ VTT synchronization
+  - Fog of war and measurement tools
+- **Phase 4**: Statistics Emulator - Probability simulations for rolls
+- **Phase 5**: RAG Integration - L5R lore/rules lookup with AI
+- **Phase 6**: Character Management - Store character sheets
 
 ## Quick Start
 
@@ -144,35 +148,111 @@ Get help with bot commands.
 
 ## Project Structure
 
+This project uses a **monorepo structure** with three TypeScript packages:
+
 ```
 butterfly-lady/
-├── docker-compose.yml       # Production Docker setup
-├── docker-compose.dev.yml   # Development Docker setup
-├── Dockerfile               # Multi-stage build (prod + dev)
-├── package.json             # Dependencies and scripts
-├── tsconfig.json            # TypeScript configuration
-├── env.example              # Environment template
+├── packages/
+│   ├── core/                      # @butterfly-lady/core
+│   │   ├── src/
+│   │   │   ├── dice/              # Roll & Keep logic
+│   │   │   │   ├── dice.ts        # Core dice rolling
+│   │   │   │   ├── parser.ts      # Expression parser
+│   │   │   │   └── index.ts
+│   │   │   ├── types/             # Type definitions
+│   │   │   │   ├── dice.ts
+│   │   │   │   └── index.ts
+│   │   │   └── index.ts           # Main exports
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── bot/                       # @butterfly-lady/bot
+│   │   ├── src/
+│   │   │   ├── commands/          # Discord slash commands
+│   │   │   │   ├── roll.ts
+│   │   │   │   ├── help.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── formatters/        # Discord embeds
+│   │   │   │   ├── rollEmbed.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── types/             # Discord types
+│   │   │   │   ├── commands.ts
+│   │   │   │   └── index.ts
+│   │   │   └── index.ts           # Bot initialization
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   └── backend/                   # @butterfly-lady/backend
+│       ├── src/
+│       │   └── index.ts           # Main entry point
+│       ├── package.json
+│       └── tsconfig.json
+│
 ├── data/
-│   └── schools.json         # L5R schools (for Phase 4)
-└── src/
-    ├── index.ts             # Bot entry point
-    ├── commands/            # Slash commands
-    │   ├── roll.ts
-    │   └── help.ts
-    ├── utils/               # Utilities
-    │   ├── dice.ts          # Roll & Keep logic
-    │   ├── parser.ts        # Expression parser
-    │   └── formatter.ts     # Discord embeds
-    └── types/               # TypeScript types
-        ├── dice.ts
-        └── commands.ts
+│   └── schools.json               # L5R schools (for Phase 4)
+├── docker-compose.yml             # Production Docker setup
+├── docker-compose.dev.yml         # Development Docker setup
+├── Dockerfile                     # Multi-stage build (prod + dev)
+├── package.json                   # Workspace root
+├── pnpm-workspace.yaml            # Workspace configuration
+└── env.example                    # Environment template
+```
+
+### Package Responsibilities
+
+- **@butterfly-lady/core** - Pure L5R 4th Edition business logic
+  - No Discord dependencies
+  - Reusable dice rolling, parsing, and game mechanics
+  - Can be used by future VTT, web apps, or other clients
+
+- **@butterfly-lady/bot** - Discord integration layer
+  - Discord.js commands and formatters
+  - Bot lifecycle management
+  - Depends on: `@butterfly-lady/core`
+
+- **@butterfly-lady/backend** - Main orchestrator
+  - Environment configuration
+  - Bot startup and shutdown
+  - Signal handling
+  - Depends on: `@butterfly-lady/bot`
+
+### Dependency Graph
+
+```
+backend (entry point)
+  └─> bot (Discord integration)
+       └─> core (L5R game logic)
 ```
 
 ## Development
 
+### Monorepo Commands
+
+```bash
+# Install all workspace dependencies
+pnpm install
+
+# Build all packages
+pnpm run build
+
+# Build specific package
+pnpm --filter @butterfly-lady/core build
+pnpm --filter @butterfly-lady/bot build
+pnpm --filter @butterfly-lady/backend build
+
+# Run in development mode (hot-reload)
+pnpm run dev
+
+# Lint all packages
+pnpm run lint
+
+# Clean build artifacts
+pnpm run clean
+```
+
 ### Adding New Commands
 
-1. Create a new file in `src/commands/`
+1. Create a new file in `packages/bot/src/commands/`
 2. Implement the `Command` interface:
 
 ```typescript
@@ -198,20 +278,28 @@ export const myCommand: Command = {
 };
 ```
 
-3. Import and register in `src/index.ts`
+3. Import and register in `packages/bot/src/index.ts`
+
+### Adding Core Logic
+
+1. Add new logic to `packages/core/src/`
+2. Export from `packages/core/src/index.ts`
+3. Use in bot commands: `import { yourFunction } from '@butterfly-lady/core'`
 
 ### TypeScript
 
 The project uses strict TypeScript configuration:
 - Strict mode enabled
-- ESM modules
-- Full type safety
+- ESM modules with `.js` extensions in imports
+- Full type safety across all packages
+- Workspace references for cross-package types
 
 ### Docker
 
 - **Multi-stage build**: Single Dockerfile with `development` and `production` targets
 - **Production**: Optimized image with only runtime dependencies
-- **Development**: Hot-reload with mounted volumes
+- **Development**: Hot-reload with mounted volumes for all packages
+- **Workspace-aware**: Properly handles pnpm workspace dependencies
 
 ## Troubleshooting
 
@@ -235,16 +323,31 @@ The project uses strict TypeScript configuration:
 - **Language**: TypeScript (strict mode)
 - **Runtime**: Node.js 20
 - **Framework**: Discord.js v14
-- **Package Manager**: pnpm
+- **Package Manager**: pnpm (with workspaces)
+- **Architecture**: Monorepo with 3 packages
 - **Containerization**: Docker & Docker Compose
 - **Build Tool**: TypeScript Compiler (tsc)
+- **Random Number Generation**: Seedrandom (OS-entropy based)
+
+## Architecture Benefits
+
+The monorepo structure provides:
+
+1. **Clean Separation** - Business logic separated from Discord integration
+2. **Reusable Core** - Core L5R logic can be used in VTT, web apps, etc.
+3. **Type Safety** - Shared types across all packages
+4. **Independent Testing** - Test core logic without Discord mocks
+5. **Future Ready** - Easy to add VTT server, frontend, statistics packages
 
 ## Contributing
 
 This bot is in active development. Planned features:
-- Phase 3: Roll statistics and probability analysis
-- Phase 4: RAG-based L5R lore/rules lookup
-- Phase 5: Character sheet management
+- Phase 3: VTT server with React + Pixi.js frontend
+- Phase 4: Roll statistics and probability analysis
+- Phase 5: RAG-based L5R lore/rules lookup
+- Phase 6: Character sheet management
+
+See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for detailed Phase 3 plans.
 
 ## Reference
 

@@ -1,0 +1,29 @@
+{
+  "name": "@butterfly-lady/backend",
+  "version": "1.0.0",
+  "description": "L5R Discord bot backend orchestrator",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "l5r"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@butterfly-lady/bot": "workspace:*",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.5",
+    "tsx": "4.7.0",
+    "typescript": "5.3.3"
+  }
+}

@@ -1,8 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { parseRollExpression, executeRoll } from '@butterfly-lady/core';
 import { Command } from '../types/commands.js';
-import { parseRollExpression } from '../utils/parser.js';
-import { executeRoll } from '../utils/dice.js';
-import { createRollEmbed, createErrorEmbed } from '../utils/formatter.js';
+import { createRollEmbed, createErrorEmbed } from '../formatters/rollEmbed.js';
 
 export const rollCommand: Command = {
   data: new SlashCommandBuilder()

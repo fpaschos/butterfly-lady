@@ -7,13 +7,51 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      '@types/node':
+        specifier: 20.11.5
+        version: 20.11.5
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
+  packages/backend:
     dependencies:
-      discord.js:
-        specifier: ^14.25.1
-        version: 14.25.1
+      '@butterfly-lady/bot':
+        specifier: workspace:*
+        version: link:../bot
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+    devDependencies:
+      '@types/node':
+        specifier: 20.11.5
+        version: 20.11.5
+      tsx:
+        specifier: 4.7.0
+        version: 4.7.0
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
+  packages/bot:
+    dependencies:
+      '@butterfly-lady/core':
+        specifier: workspace:*
+        version: link:../core
+      discord.js:
+        specifier: ^14.25.1
+        version: 14.25.1
+    devDependencies:
+      '@types/node':
+        specifier: 20.11.5
+        version: 20.11.5
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
+  packages/core:
+    dependencies:
       seedrandom:
         specifier: ^3.0.5
         version: 3.0.5
@@ -24,9 +62,6 @@ importers:
       '@types/seedrandom':
         specifier: 3.0.8
         version: 3.0.8
-      tsx:
-        specifier: 4.7.0
-        version: 4.7.0
       typescript:
         specifier: 5.3.3
         version: 5.3.3

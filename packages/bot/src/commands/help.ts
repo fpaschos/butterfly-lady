@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { Command } from '../types/commands.js';
-import { createCommandHelpEmbed } from '../utils/formatter.js';
+import { createCommandHelpEmbed } from '../formatters/rollEmbed.js';
 
 export const helpCommand: Command = {
   data: new SlashCommandBuilder()
@@ -200,4 +200,3 @@ function getCommandHelpData(commandName: string) {
   
   return helpData[commandName];
 }
-

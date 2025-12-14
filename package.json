@@ -1,14 +1,15 @@
 {
-  "name": "butterfly-lady",
+  "name": "butterfly-lady-monorepo",
   "version": "1.0.0",
-  "description": "A Discord bot for Legend of the Five Rings 4th Edition RPG",
-  "main": "dist/index.js",
+  "description": "L5R 4th Edition Discord Bot - Monorepo",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "tsc --noEmit"
+    "dev": "pnpm --filter @butterfly-lady/backend dev",
+    "build": "pnpm -r build",
+    "start": "pnpm --filter @butterfly-lady/backend start",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean"
   },
   "keywords": [
     "discord",
@@ -19,15 +20,8 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "discord.js": "^14.25.1",
-    "dotenv": "^17.2.3",
-    "seedrandom": "^3.0.5"
-  },
   "devDependencies": {
     "@types/node": "20.11.5",
-    "@types/seedrandom": "3.0.8",
-    "tsx": "4.7.0",
     "typescript": "5.3.3"
   },
   "engines": {
