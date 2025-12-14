@@ -32,7 +32,7 @@ export const rollCommand: Command = {
       // Handle parsing or execution errors
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       const embed = createErrorEmbed(errorMessage);
-      await interaction.reply({ embeds: [embed], ephemeral: true });
+      await interaction.reply({ embeds: [embed], flags: 1 << 6 }); // MessageFlags.Ephemeral
     }
   },
   

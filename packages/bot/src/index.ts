@@ -54,7 +54,7 @@ export async function startBot(config: BotConfig): Promise<Client> {
   }
 
   // Bot ready event
-  client.once('ready', async () => {
+  client.once('clientReady', async () => {
     if (!client.user) {
       console.error('❌ Client user is not available');
       return;
@@ -118,7 +118,7 @@ export async function startBot(config: BotConfig): Promise<Client> {
       
       const errorMessage = {
         content: '❌ An error occurred while executing this command.',
-        ephemeral: true
+        flags: 1 << 6 // MessageFlags.Ephemeral
       };
       
       if (interaction.replied || interaction.deferred) {

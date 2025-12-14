@@ -53,7 +53,7 @@ async function showCommandHelp(
   if (!helpData) {
     await interaction.reply({
       content: `❌ No help available for command: ${commandName}`,
-      ephemeral: true
+      flags: 1 << 6 // MessageFlags.Ephemeral
     });
     return;
   }
