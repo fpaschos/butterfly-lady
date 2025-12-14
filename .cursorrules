@@ -1,37 +1,235 @@
-# Butterfly Lady Discord Bot - Cursor Rules
+# Butterfly Lady - Cursor Rules
 
-## Project Context
-This is a TypeScript Discord bot for Legend of the Five Rings 4th Edition RPG.
-- Uses Discord.js v14 with slash commands
-- Implements Roll & Keep dice system with exploding dice (Rule of 10)
-- Future phases: statistics, RAG/LLM integration, character management
+## Project Overview
+L5R 4th Edition Discord Bot + VTT (Virtual Tabletop) in TypeScript monorepo.
+- **Current**: Phases 1-3A complete (see STATUS.md)
+- **Next**: VTT server integration (see VTT_ARCHITECTURE.md)
+- **Stack**: Node.js 20, TypeScript strict, Discord.js v14, pnpm workspaces, Docker
 
-## Code Style
-- TypeScript strict mode
-- ESM modules (use .js extensions in imports)
-- Functional programming preferred for utilities
-- Clear comments explaining L5R mechanics
+## Monorepo Structure
+```
+packages/
+├── core/     # @butterfly-lady/core - Pure L5R game logic (no Discord deps)
+├── bot/      # @butterfly-lady/bot - Discord integration layer
+└── backend/  # @butterfly-lady/backend - Main orchestrator
+```
+**Dependency chain**: backend → bot → core (no circular deps)
 
-## File Organization
-- Commands go in `src/commands/`
-- Utilities go in `src/utils/`
-- Types go in `src/types/`
-- All commands must implement the Command interface
+## Code Style & Best Practices
 
-## L5R 4th Edition Rules
-- Roll & Keep: Roll X d10s, keep Y highest
-- Rule of 10: When a die shows 10, roll again and add (can chain)
-- Format: XkY[+/-Z] where Z is optional modifier
-- Kept dice are summed, then modifier applied
+### TypeScript
+- **Strict mode** enabled across all packages
+- **ESM modules**: Always use `.js` extensions in imports (`import { x } from './foo.js'`)
+- **Functional programming** preferred for utilities and pure logic
+- **Type safety**: Define types in `types/` directories, export from package index
+- **No `any` types**: Use proper types or `unknown` with type guards
+
+### Architecture Principles
+- **Separation of concerns**: Core logic separate from Discord/platform code
+- **Reusable core**: Core package must work standalone (testable without Discord)
+- **Event-driven**: Prepare for GameStateManager event emitter pattern (Phase 3B)
+- **Dependency injection**: Pass dependencies via constructors/parameters
+
+### File Organization
+```
+packages/[package]/src/
+├── index.ts              # Main exports
+├── [domain]/             # Domain logic (dice/, game/, etc.)
+│   ├── [feature].ts
+│   └── index.ts
+└── types/                # Type definitions
+    ├── [feature].ts
+    └── index.ts
+```
+
+### Naming Conventions
+- **Files**: camelCase for utilities, PascalCase for classes
+- **Functions**: camelCase, descriptive verbs (`rollDice`, `parseExpression`)
+- **Types/Interfaces**: PascalCase (`RollResult`, `DiceOptions`)
+- **Constants**: UPPER_SNAKE_CASE for true constants
+- **Package imports**: Use workspace aliases (`@butterfly-lady/core`)
+
+### Comments & Documentation
+- **JSDoc**: Required for exported functions, classes, types
+- **L5R mechanics**: Explain game rules in comments (not everyone knows L5R)
+- **Why over what**: Comment intent, not obvious code
+- **Examples**: Include usage examples in complex functions
+
+### Error Handling
+- **Validate inputs**: Use type guards or validation libraries (Zod for API boundaries)
+- **Descriptive errors**: Clear messages for users and debugging
+- **Graceful degradation**: Handle Discord API failures gracefully
+- **Never crash**: Catch errors at interaction/request boundaries
 
 ## Discord Integration
-- Use slash commands (not prefix commands)
-- Use embeds for rich formatting
-- Error messages should be ephemeral
-- Always handle interaction errors gracefully
 
-## Future Phases
-- Phase 3: Statistics/probability simulation
-- Phase 4: RAG/LLM integration (OpenAI/Anthropic/NotebookLM)
-- Phase 5: Character management with flexible storage
+### Commands
+- **Slash commands only** (no prefix commands)
+- **Ephemeral for errors**: User-only visibility for error messages
+- **Rich embeds**: Use Discord embeds for formatted output
+- **Metadata**: All commands must have `metadata` object (see `Command` interface)
 
+### Embeds
+- **Consistent colors**: Use thematic colors for different message types
+- **Clear structure**: Title, description, fields for data
+- **Footers**: Include helpful context (mode, options used)
+- **Emojis**: Use sparingly for visual clarity (🎲, ✅, ❌)
+
+## L5R 4th Edition Rules
+
+### Core Mechanics
+- **Roll & Keep**: Roll X d10s, keep Y highest (XkY format)
+- **Rule of 10**: Dice explode based on mode:
+  - Skilled (default): 10s explode
+  - Unskilled: No explosions
+  - Mastery: 9s and 10s explode
+- **Ten Dice Rule**: Rolls >10k10 auto-convert (12k4 → 10k5)
+- **Emphasis**: Reroll dice ≤N (default e = e:1)
+- **Raises**: +5 to TN per called raise
+
+### Expression Format
+`XkY[+/-Z] [u|m] [tn:N] [r:N] [e or e:N]`
+- Always validate expressions in parser
+- Support flexible ordering of flags/options
+
+## Development Workflow
+
+### Local Development
+```bash
+pnpm install          # Install workspace dependencies
+pnpm run dev          # Hot-reload development mode
+pnpm run build        # Build all packages
+pnpm run lint         # Lint all packages
+```
+
+### Docker
+- **Development**: `docker-compose -f docker-compose.dev.yml up` (hot-reload)
+- **Production**: `docker-compose up` (optimized build)
+- **Multi-stage**: Dockerfile has `development` and `production` targets
+
+### Package Commands
+```bash
+pnpm --filter @butterfly-lady/core build    # Build specific package
+pnpm -r build                                # Build all packages
+```
+
+## Testing Strategy
+- **Manual testing**: Test commands in Discord during development
+- **Test mode**: Set `DICE_SEED` env var for deterministic rolls
+- **Core logic**: Can test independently (no Discord mocks needed)
+- **Future**: Vitest for unit tests (Phase 4)
+
+## VTT Integration (Phase 3B+)
+
+### Architecture Goals (see VTT_ARCHITECTURE.md)
+- **GameStateManager**: Singleton event emitter for state management
+- **SyncService**: Bidirectional Discord ↔ VTT synchronization
+- **WebSocket**: Real-time communication with VTT clients
+- **React + Pixi.js**: Frontend (UI layer + game canvas)
+- **Monorepo ready**: Can add `packages/vtt-server` and `packages/frontend`
+
+### Communication Patterns
+- **HTTP**: Initial data fetching (GET /api/game/:id/state)
+- **WebSocket**: Real-time events (rolls, token moves, chat)
+- **Event-driven**: All services listen to GameStateManager events
+
+### Deployment Target
+- **Self-hosted**: Runs on developer's PC with Docker
+- **Cloudflare Tunnel**: Secure remote access (HTTPS, no port forwarding)
+- **LAN option**: Local network only for in-person games
+
+## Status Tracking
+
+### Current Status
+See **STATUS.md** for:
+- ✅ Completed phases and features
+- 🎯 What currently works
+- 📊 Code quality metrics
+- 🚀 Next steps
+
+### Architecture Planning
+See **VTT_ARCHITECTURE.md** for:
+- Complete VTT architecture design
+- Deployment options (LAN, Cloudflare Tunnel)
+- Tech stack decisions
+- Integration patterns
+- Phase 3+ implementation plan
+
+## Environment Variables
+```env
+DISCORD_TOKEN=...           # Required: Bot token
+DISCORD_CLIENT_ID=...       # Required: Application ID
+VTT_CHANNEL_ID=...          # Optional: Auto-post VTT link
+VTT_URL=...                 # Optional: VTT public URL
+NODE_ENV=...                # development | production
+DICE_SEED=...               # Optional: Deterministic RNG for testing
+```
+
+## Common Patterns
+
+### Adding New Commands
+1. Create in `packages/bot/src/commands/[name].ts`
+2. Implement `Command` interface with `data`, `execute`, `metadata`
+3. Import and register in `packages/bot/src/index.ts`
+4. Core logic goes in `packages/core/src/`
+
+### Adding Core Logic
+1. Add to `packages/core/src/[domain]/`
+2. Define types in `packages/core/src/types/`
+3. Export from `packages/core/src/index.ts`
+4. Use in bot: `import { ... } from '@butterfly-lady/core'`
+
+### Creating Embeds
+- Use `rollEmbed.ts` as reference
+- Consistent structure: title, description, fields, footer
+- Show detailed breakdowns for transparency
+- Handle edge cases (empty results, errors)
+
+## Quick Reference
+
+### Key Files
+- `STATUS.md` - Current implementation status
+- `VTT_ARCHITECTURE.md` - Phase 3+ architecture plans
+- `README.md` - User documentation and setup
+- `packages/core/src/dice/` - Core dice rolling logic
+- `packages/bot/src/commands/` - Discord slash commands
+- `packages/bot/src/formatters/` - Discord embed formatters
+
+### Important Commands
+- `/roll` - Main dice rolling command (see rollCommand.ts)
+- `/help` - Interactive help system
+
+### Next Phase
+Phase 3B: Add VTT server
+- GameStateManager implementation
+- Express + WebSocket server
+- React + Pixi.js frontend scaffolding
+- Basic map rendering
+
+## Documentation & File Management
+
+### Existing Documentation Files
+- **README.md** - User documentation, setup, command reference
+- **STATUS.md** - Current implementation status, completed phases, next steps
+- **VTT_ARCHITECTURE.md** - Architecture design and planning for Phase 3+
+
+### Documentation Rules
+- **DO NOT create new .md files** without explicit user approval
+- **Update existing files** rather than creating new ones
+- **Propose first**: If you think a new documentation file is needed, ask the user
+- **No bloat**: Keep documentation consolidated in the three core files
+- **No temporary files**: Don't create planning docs, task lists, or scratch files
+- **In-code documentation**: Use JSDoc and comments for code-level documentation
+
+### When Working in Agent/Plan Mode
+- Reference existing documentation files for context
+- Propose updates to README.md, STATUS.md, or VTT_ARCHITECTURE.md as needed
+- Do not generate separate architecture diagrams, planning docs, or task breakdown files
+- Keep all project knowledge in the established documentation structure
+
+## Notes
+- **No global state** in core package (testable, reusable)
+- **Platform-agnostic core**: Could support web, mobile, other platforms
+- **Future-ready**: Architecture supports statistics, RAG/LLM, character management
+- **Self-hosted first**: Designed for Docker on developer's PC
+- **Free to run**: No cloud costs, optional domain ($1-3/year for remote access)
