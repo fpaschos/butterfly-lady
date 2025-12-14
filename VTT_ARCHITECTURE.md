@@ -2188,7 +2188,7 @@ Upload map: HTTP POST /api/maps/upload (once)
 
 ## Next Steps
 
-### Phase 1: Choose Your Deployment Strategy
+### Step 1: Choose Your Deployment Strategy
 
 **Decide how you'll host the VTT**:
 
@@ -2205,7 +2205,7 @@ Upload map: HTTP POST /api/maps/upload (once)
   - ✅ Players anywhere in the world
   - Best for: Remote gaming groups
 
-### Phase 2: Implement Statistics & Probability (Phase 3B)
+### Step 2: Implement Statistics & Probability (Phase 3B)
 
 1. **Review existing dice rolling logic**
 2. **Add probability calculation functions**
@@ -2213,7 +2213,7 @@ Upload map: HTTP POST /api/maps/upload (once)
 4. **Create Discord commands** for probability queries
 5. **Test with known probability scenarios**
 
-### Phase 3: Add Character Management (Phase 3C)
+### Step 3: Add Character Management (Phase 3C)
 
 1. **Design character sheet schema**
 2. **Implement character storage** (JSON or SQLite)
@@ -2221,7 +2221,7 @@ Upload map: HTTP POST /api/maps/upload (once)
 4. **Add Discord commands** for character management
 5. **Test character creation and rolling with stats**
 
-### Phase 4: Generate Images (Phase 4)
+### Step 4: Generate Images (Phase 4)
 
 1. **Choose AI image generation service** (Stable Diffusion, DALL-E, etc.)
 2. **Implement map generation** functions
@@ -2229,7 +2229,7 @@ Upload map: HTTP POST /api/maps/upload (once)
 4. **Create Discord commands** for generation
 5. **Set up asset storage** and management
 
-### Phase 5: Build VTT (Phase 5A-D)
+### Step 5: Build VTT (Phase 5A-D)
 
 1. **Set up VTT packages** (monorepo extension)
 2. **Implement GameStateManager** and WebSocket server
@@ -2237,7 +2237,7 @@ Upload map: HTTP POST /api/maps/upload (once)
 4. **Integrate existing features** (dice, characters, images)
 5. **Add advanced VTT features** (fog of war, etc.)
 
-### Phase 6: Deploy and Test
+### Step 6: Deploy and Test
 
 1. **Set up Docker** on your PC
 2. **Choose deployment**:
