@@ -21,7 +21,7 @@ importers:
         specifier: workspace:*
         version: link:../bot
       dotenv:
-        specifier: ^17.2.3
+        specifier: 17.2.3
         version: 17.2.3
     devDependencies:
       '@types/node':
@@ -40,7 +40,7 @@ importers:
         specifier: workspace:*
         version: link:../core
       discord.js:
-        specifier: ^14.25.1
+        specifier: 14.25.1
         version: 14.25.1
     devDependencies:
       '@types/node':
@@ -53,7 +53,7 @@ importers:
   packages/core:
     dependencies:
       seedrandom:
-        specifier: ^3.0.5
+        specifier: 3.0.5
         version: 3.0.5
     devDependencies:
       '@types/node':

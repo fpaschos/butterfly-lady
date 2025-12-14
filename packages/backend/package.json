@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@butterfly-lady/bot": "workspace:*",
-    "dotenv": "^17.2.3"
+    "dotenv": "17.2.3"
   },
   "devDependencies": {
     "@types/node": "20.11.5",
