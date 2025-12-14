@@ -1,0 +1,27 @@
+{
+  "name": "@butterfly-lady/bot",
+  "version": "1.0.0",
+  "description": "L5R Discord bot implementation",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "l5r"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@butterfly-lady/core": "workspace:*",
+    "discord.js": "14.25.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.5",
+    "typescript": "5.3.3"
+  }
+}

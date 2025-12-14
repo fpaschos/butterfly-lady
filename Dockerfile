@@ -6,18 +6,24 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copy package files
+# Copy workspace configuration
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
-# Install dependencies
+# Copy all package.json files for workspace dependency resolution
+COPY packages/core/package.json ./packages/core/
+COPY packages/bot/package.json ./packages/bot/
+COPY packages/backend/package.json ./packages/backend/
+
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
-COPY tsconfig.json ./
-COPY src ./src
+# Copy source code for all packages
+COPY packages/core ./packages/core
+COPY packages/bot ./packages/bot
+COPY packages/backend ./packages/backend
 COPY data ./data
 
-# Build the application
+# Build all packages
 RUN pnpm run build
 
 # Development stage
@@ -32,19 +38,26 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copy package files
+# Copy workspace configuration
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+
+# Copy all package.json files
+COPY packages/core/package.json ./packages/core/
+COPY packages/bot/package.json ./packages/bot/
+COPY packages/backend/package.json ./packages/backend/
 
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile
 
 # Copy built application from base
-COPY --from=base /app/dist ./dist
+COPY --from=base /app/packages/core/dist ./packages/core/dist
+COPY --from=base /app/packages/bot/dist ./packages/bot/dist
+COPY --from=base /app/packages/backend/dist ./packages/backend/dist
 COPY --from=base /app/data ./data
 
 # Run as non-root user
 USER node
 
-# Start the bot
-CMD ["node", "dist/index.js"]
+# Start the bot from backend package
+CMD ["node", "packages/backend/dist/index.js"]
 

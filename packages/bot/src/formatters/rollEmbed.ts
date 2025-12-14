@@ -1,6 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
-import { RollResult, ExplosionMode } from '../types/dice.js';
-import { formatDieResult } from './dice.js';
+import { RollResult, ExplosionMode, formatDieResult } from '@butterfly-lady/core';
 
 /**
  * Create a Discord embed for a roll result with Phase 2 features

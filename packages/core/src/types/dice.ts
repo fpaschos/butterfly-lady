@@ -94,4 +94,3 @@ export interface RollResult {
   /** Margin of success/failure (if TN specified) */
   marginOfSuccess?: number;
 }
-

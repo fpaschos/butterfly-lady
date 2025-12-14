@@ -2,9 +2,9 @@
 
 ## ✅ Implementation Complete
 
-**Phase 1:** ✅ Complete  
-**Phase 2:** ✅ Complete  
-**Cleanup:** ✅ Complete
+**Phase 1:** ✅ Complete (Basic Roll & Keep)  
+**Phase 2:** ✅ Complete (Advanced L5R Mechanics)  
+**Phase 3A:** ✅ Complete (Monorepo Restructure)
 
 ## 🎯 What Works
 
@@ -22,12 +22,15 @@ All core functionality is implemented and working:
 - ✅ Emphasis (e defaults to e:1, or e:N)
 - ✅ Detailed output (always on)
 
-### Technical
+### Architecture & Technical
+- ✅ Monorepo structure (3 packages: core, bot, backend)
+- ✅ Clean separation: business logic, Discord integration, orchestration
+- ✅ Workspace dependencies with pnpm
 - ✅ Seedrandom with OS entropy
-- ✅ TypeScript strict mode
+- ✅ TypeScript strict mode across all packages
 - ✅ Full type safety in core logic
 - ✅ Error handling
-- ✅ Docker support
+- ✅ Docker support (dev & prod)
 
 ## 📝 Example Commands
 
@@ -57,40 +60,44 @@ All core functionality is implemented and working:
 /roll 12k5 m tn:30       # Auto-converts to 10k6
 ```
 
-## ⚠️ Known Issues
+## 📦 Project Structure
 
-### TypeScript Compilation Warnings
-- **Issue**: Discord.js API type version mismatch
-- **Impact**: Type errors during `pnpm run build`
-- **Workaround**: Code still runs correctly with `pnpm run dev` (tsx ignores type errors)
-- **Fix**: Update to discord.js ^14.16.3 when convenient
+```
+packages/
+├── core/          # @butterfly-lady/core - Pure L5R logic
+├── bot/           # @butterfly-lady/bot - Discord integration
+└── backend/       # @butterfly-lady/backend - Main entry point
+```
 
-### Files with Type Warnings:
-- `src/commands/help.ts` - SlashCommandOptionsOnlyBuilder type mismatch
-- `src/commands/roll.ts` - SlashCommandOptionsOnlyBuilder type mismatch  
-- `src/utils/formatter.ts` - Minor unused variable warning
-
-**These warnings don't affect functionality!** The bot runs perfectly.
+**Dependency chain:** backend → bot → core (no circular deps)
 
 ## 🚀 How to Run
 
 ### Development Mode (Recommended)
 ```bash
-# Make sure .env has your Discord token
+# Install workspace dependencies
+pnpm install
+
+# Run in development mode (hot-reload)
 pnpm run dev
 ```
 
-This uses `tsx` which ignores type warnings and provides hot-reload.
-
 ### Production Build
 ```bash
-pnpm run build    # May show type warnings
-pnpm start        # Runs fine despite warnings
+# Build all packages
+pnpm run build
+
+# Start the bot
+pnpm start
 ```
 
 ### Docker
 ```bash
+# Production
 docker-compose up --build
+
+# Development (with hot-reload)
+docker-compose -f docker-compose.dev.yml up --build
 ```
 
 ## 🧪 Testing
@@ -130,48 +137,45 @@ Test these commands to verify everything works:
 | Metric | Status |
 |--------|--------|
 | Core Logic | ✅ No errors |
-| Type Safety | ✅ Mostly safe |
+| Type Safety | ✅ Strict mode all packages |
+| Monorepo Structure | ✅ Clean separation |
 | Error Handling | ✅ Comprehensive |
 | Documentation | ✅ Complete |
-| Tests | ⏳ Manual testing needed |
-
-## 🔧 If You Want to Fix Type Warnings
-
-Run this to update Discord.js:
-
-```bash
-pnpm update discord.js@latest
-pnpm install
-```
-
-This should resolve the Discord API type mismatches.
+| Tests | ⏳ Manual testing |
 
 ## ✨ Summary
 
 **The bot is fully functional and ready to use!**
 
-All requested features are implemented:
-- ✅ Phase 1: Basic dice rolling
-- ✅ Phase 2: Advanced L5R mechanics
-- ✅ Cleanup: Removed skill, e defaults to e:1, always detailed, emphasis in footer
+### Completed Phases:
+- ✅ **Phase 1**: Basic Roll & Keep dice system
+- ✅ **Phase 2**: Advanced L5R 4th Edition mechanics (explosions, TNs, raises, emphasis)
+- ✅ **Phase 3A**: Monorepo restructure (clean architecture for VTT integration)
 
-Type warnings are cosmetic and don't affect runtime behavior.
+### Architecture Ready For:
+- **Phase 3B**: VTT Server (can add `packages/vtt-server`)
+- **Phase 3C**: Frontend (can add `packages/frontend`)
+- **Phase 4**: Statistics & probability simulations
+- **Phase 5**: RAG/LLM integration for L5R lore
+- **Phase 6**: Character management
 
-## 🎲 Next Steps
+## 🎯 Next Steps
 
-1. **Test the bot**:
+1. **Verify the bot runs**:
    ```bash
    pnpm run dev
    ```
 
-2. **Try commands in Discord**
+2. **Test commands in Discord**
 
-3. **When ready for Phase 3**:
-   - Statistics & probability simulations
-   - Monte Carlo analysis
-   - Success calculators
+3. **Review architecture for Phase 3B**:
+   - See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for VTT server plans
+   - Ready to add VTT packages to existing monorepo
 
 ---
 
 **The Butterfly Lady serves the Emperor!** 🦋⚔️
+
+
+
 

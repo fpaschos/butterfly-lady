@@ -1,0 +1,27 @@
+{
+  "name": "@butterfly-lady/core",
+  "version": "1.0.0",
+  "description": "L5R 4th Edition core business logic",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "l5r",
+    "dice",
+    "roll-and-keep"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "seedrandom": "3.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.5",
+    "@types/seedrandom": "3.0.8",
+    "typescript": "5.3.3"
+  }
+}

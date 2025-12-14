@@ -31,4 +31,3 @@ export interface Command {
   /** Metadata for help system */
   metadata: CommandMetadata;
 }
-
