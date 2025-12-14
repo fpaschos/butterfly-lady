@@ -3,7 +3,7 @@
 ## Project Overview
 L5R 4th Edition Discord Bot + VTT (Virtual Tabletop) in TypeScript monorepo.
 - **Current**: Phases 1-3A complete (see STATUS.md)
-- **Next**: VTT server integration (see VTT_ARCHITECTURE.md)
+- **Next**: Phase 3B (Statistics & Probability), then 3C (Character), 4 (Images), 5 (VTT)
 - **Stack**: Node.js 20, TypeScript strict, Discord.js v14, pnpm workspaces, Docker
 
 ## Monorepo Structure
@@ -27,7 +27,7 @@ packages/
 ### Architecture Principles
 - **Separation of concerns**: Core logic separate from Discord/platform code
 - **Reusable core**: Core package must work standalone (testable without Discord)
-- **Event-driven**: Prepare for GameStateManager event emitter pattern (Phase 3B)
+- **Event-driven**: Prepare for GameStateManager event emitter pattern (Phase 5)
 - **Dependency injection**: Pass dependencies via constructors/parameters
 
 ### File Organization
@@ -117,26 +117,35 @@ pnpm -r build                                # Build all packages
 - **Manual testing**: Test commands in Discord during development
 - **Test mode**: Set `DICE_SEED` env var for deterministic rolls
 - **Core logic**: Can test independently (no Discord mocks needed)
-- **Future**: Vitest for unit tests (Phase 4)
+- **Future**: Vitest for unit tests (later phases)
 
-## VTT Integration (Phase 3B+)
+## Future Phases
 
-### Architecture Goals (see VTT_ARCHITECTURE.md)
+### Phase 3B: Statistics & Probability
+- Roll probability calculations
+- Success rate analysis
+- Monte Carlo simulations
+- Discord commands for probability queries
+
+### Phase 3C: Character Management
+- Character sheet storage (SQLite/JSON)
+- Character creation and editing
+- Roll with character stats
+- Discord commands for character management
+
+### Phase 4: Image Generation
+- AI-generated battle maps
+- Token/character portrait generation
+- Integration with future VTT
+- Discord commands for generation
+
+### Phase 5: VTT Integration (see VTT_ARCHITECTURE.md)
 - **GameStateManager**: Singleton event emitter for state management
 - **SyncService**: Bidirectional Discord ↔ VTT synchronization
 - **WebSocket**: Real-time communication with VTT clients
 - **React + Pixi.js**: Frontend (UI layer + game canvas)
 - **Monorepo ready**: Can add `packages/vtt-server` and `packages/frontend`
-
-### Communication Patterns
-- **HTTP**: Initial data fetching (GET /api/game/:id/state)
-- **WebSocket**: Real-time events (rolls, token moves, chat)
-- **Event-driven**: All services listen to GameStateManager events
-
-### Deployment Target
-- **Self-hosted**: Runs on developer's PC with Docker
-- **Cloudflare Tunnel**: Secure remote access (HTTPS, no port forwarding)
-- **LAN option**: Local network only for in-person games
+- **Deployment**: Self-hosted on PC with Docker + Cloudflare Tunnel
 
 ## Status Tracking
 
@@ -149,11 +158,11 @@ See **STATUS.md** for:
 
 ### Architecture Planning
 See **VTT_ARCHITECTURE.md** for:
-- Complete VTT architecture design
+- Complete VTT architecture design (Phase 5)
 - Deployment options (LAN, Cloudflare Tunnel)
 - Tech stack decisions
 - Integration patterns
-- Phase 3+ implementation plan
+- Phase 5 implementation plan
 
 ## Environment Variables
 ```env
@@ -189,7 +198,7 @@ DICE_SEED=...               # Optional: Deterministic RNG for testing
 
 ### Key Files
 - `STATUS.md` - Current implementation status
-- `VTT_ARCHITECTURE.md` - Phase 3+ architecture plans
+- `VTT_ARCHITECTURE.md` - Phase 5 (VTT) architecture plans
 - `README.md` - User documentation and setup
 - `packages/core/src/dice/` - Core dice rolling logic
 - `packages/bot/src/commands/` - Discord slash commands
@@ -199,19 +208,31 @@ DICE_SEED=...               # Optional: Deterministic RNG for testing
 - `/roll` - Main dice rolling command (see rollCommand.ts)
 - `/help` - Interactive help system
 
-### Next Phase
-Phase 3B: Add VTT server
+### Next Phases
+**Phase 3B**: Statistics & Probability
+- Probability calculator for roll success rates
+- Monte Carlo simulations
+- Discord commands for statistical analysis
+
+**Phase 3C**: Character Management
+- Character sheet storage and CRUD
+- Character-based rolling
+
+**Phase 4**: Image Generation
+- AI-generated maps and tokens
+
+**Phase 5**: VTT Server
 - GameStateManager implementation
 - Express + WebSocket server
-- React + Pixi.js frontend scaffolding
-- Basic map rendering
+- React + Pixi.js frontend
+- Full Discord ↔ VTT integration
 
 ## Documentation & File Management
 
 ### Existing Documentation Files
 - **README.md** - User documentation, setup, command reference
 - **STATUS.md** - Current implementation status, completed phases, next steps
-- **VTT_ARCHITECTURE.md** - Architecture design and planning for Phase 3+
+- **VTT_ARCHITECTURE.md** - Architecture design and planning for Phase 5 (VTT)
 
 ### Documentation Rules
 - **DO NOT create new .md files** without explicit user approval
@@ -230,6 +251,6 @@ Phase 3B: Add VTT server
 ## Notes
 - **No global state** in core package (testable, reusable)
 - **Platform-agnostic core**: Could support web, mobile, other platforms
-- **Future-ready**: Architecture supports statistics, RAG/LLM, character management
+- **Future-ready**: Architecture supports statistics (Phase 3B), character management (Phase 3C), images (Phase 4), VTT (Phase 5)
 - **Self-hosted first**: Designed for Docker on developer's PC
 - **Free to run**: No cloud costs, optional domain ($1-3/year for remote access)

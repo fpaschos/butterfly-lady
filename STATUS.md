@@ -153,11 +153,10 @@ Test these commands to verify everything works:
 - ✅ **Phase 3A**: Monorepo restructure (clean architecture for VTT integration)
 
 ### Architecture Ready For:
-- **Phase 3B**: VTT Server (can add `packages/vtt-server`)
-- **Phase 3C**: Frontend (can add `packages/frontend`)
-- **Phase 4**: Statistics & probability simulations
-- **Phase 5**: RAG/LLM integration for L5R lore
-- **Phase 6**: Character management
+- **Phase 3B**: Statistics & probability simulations
+- **Phase 3C**: Character management
+- **Phase 4**: Image generation (AI maps/tokens)
+- **Phase 5**: VTT Server (can add `packages/vtt-server` and `packages/frontend`)
 
 ## 🎯 Next Steps
 
@@ -168,9 +167,11 @@ Test these commands to verify everything works:
 
 2. **Test commands in Discord**
 
-3. **Review architecture for Phase 3B**:
-   - See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for VTT server plans
-   - Ready to add VTT packages to existing monorepo
+3. **Review architecture for next phases**:
+   - Phase 3B: Statistics and probability analysis
+   - Phase 3C: Character management
+   - Phase 4: Image generation
+   - Phase 5: See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for VTT server plans
 
 ---
 

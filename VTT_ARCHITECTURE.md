@@ -230,13 +230,14 @@ RESULT:
 
 ## Deep Integration Features
 
-### ✅ Implemented (Phase 1 & 2)
+### ✅ Implemented (Phase 1-3A)
 - L5R 4th Edition dice rolling
 - Roll & Keep system
 - Explosion modes (skilled/unskilled/mastery)
 - Advanced mechanics (emphasis, raises, target numbers)
+- Monorepo architecture (clean separation)
 
-### 🎯 New VTT Features (Phase 3)
+### 🎯 New VTT Features (Phase 5)
 
 #### Real-Time Synchronization
 - **Discord → VTT**: Rolls made in Discord appear in VTT chat/map
@@ -1197,46 +1198,59 @@ const socket = new WebSocket('ws://backend:3000');
 
 ## Implementation Phases
 
-### Phase 3A: VTT Foundation (Current → Week 1)
-- [ ] Set up monorepo (pnpm workspaces)
+### Phase 3B: Statistics & Probability (Week 1-2)
+- [ ] Roll probability calculator
+- [ ] Success rate analysis
+- [ ] Monte Carlo simulations
+- [ ] Statistical comparisons (skilled vs mastery)
+- [ ] Optimal emphasis calculations
+- [ ] Discord commands for probability queries
+
+### Phase 3C: Character Management (Week 2-3)
+- [ ] Character sheet storage (JSON/SQLite)
+- [ ] Character creation and editing
+- [ ] Quick stats display
+- [ ] Roll with character stats
+- [ ] Character list and lookup
+- [ ] Discord commands for character management
+
+### Phase 4: Image Generation (Week 3-4)
+- [ ] AI-generated battle maps
+- [ ] Token/character portrait generation
+- [ ] Map variations and themes
+- [ ] Integration with VTT preparation
+- [ ] Discord commands for generation
+- [ ] Asset storage and management
+
+### Phase 5A: VTT Foundation (Week 4-5)
+- [ ] Set up VTT packages (vtt-server, frontend)
 - [ ] Create `packages/frontend` with Vite + React
 - [ ] Create Express server in backend
 - [ ] Add WebSocket server
 - [ ] Basic GameStateManager
 - [ ] Simple HTTP API (`GET /api/health`)
 
-### Phase 3B: Basic VTT (Week 1-2)
+### Phase 5B: Basic VTT (Week 5-6)
 - [ ] Pixi.js canvas with grid
 - [ ] Token rendering (static)
 - [ ] WebSocket connection (frontend ↔ backend)
 - [ ] Basic chat UI
 - [ ] Dice roller UI (calls existing logic)
 
-### Phase 3C: Deep Integration (Week 2-3)
+### Phase 5C: Deep Integration (Week 6-7)
 - [ ] SyncService implementation
 - [ ] Discord → VTT roll sync
 - [ ] VTT → Discord roll sync
-- [ ] Shared character sheets (basic)
+- [ ] Shared character sheets (from Phase 3C)
 - [ ] Combat tracker (basic)
 
-### Phase 3D: Advanced VTT (Week 3-4)
+### Phase 5D: Advanced VTT (Week 7-8)
 - [ ] Drag & drop tokens
 - [ ] Fog of War
 - [ ] Measurement tools
 - [ ] Dice animations (3D or 2D)
-- [ ] Map upload/management
+- [ ] Map upload/management (use Phase 4 AI-generated maps)
 - [ ] GM tools (show/hide tokens)
-
-### Phase 4: Character Management (Later)
-- [ ] Full character sheets
-- [ ] Character builder
-- [ ] Roll with character stats
-- [ ] Inventory management
-
-### Phase 5: RAG/LLM Integration (Later)
-- [ ] Rule lookups
-- [ ] Lore queries
-- [ ] NPC generation
 
 ## Deployment
 
@@ -2191,23 +2205,39 @@ Upload map: HTTP POST /api/maps/upload (once)
   - ✅ Players anywhere in the world
   - Best for: Remote gaming groups
 
-### Phase 2: Set Up Development Environment
+### Phase 2: Implement Statistics & Probability (Phase 3B)
 
-1. **Review this architecture document** thoroughly
-2. **Start Phase 3A**: Set up monorepo structure (see Migration Guide)
-3. **Test Discord Bot** with existing functionality
-4. **Add basic VTT server** (Express + WebSocket)
-5. **Create simple React frontend** with Pixi.js canvas
+1. **Review existing dice rolling logic**
+2. **Add probability calculation functions**
+3. **Implement Monte Carlo simulations**
+4. **Create Discord commands** for probability queries
+5. **Test with known probability scenarios**
 
-### Phase 3: Implement Core VTT Features
+### Phase 3: Add Character Management (Phase 3C)
 
-1. **Basic map rendering** (Pixi.js)
-2. **Token management** (static first, then draggable)
-3. **WebSocket connection** (frontend ↔ backend)
-4. **GameStateManager** implementation
-5. **Sync service** (Discord ↔ VTT)
+1. **Design character sheet schema**
+2. **Implement character storage** (JSON or SQLite)
+3. **Create character CRUD operations**
+4. **Add Discord commands** for character management
+5. **Test character creation and rolling with stats**
 
-### Phase 4: Deploy and Test
+### Phase 4: Generate Images (Phase 4)
+
+1. **Choose AI image generation service** (Stable Diffusion, DALL-E, etc.)
+2. **Implement map generation** functions
+3. **Add token/portrait generation**
+4. **Create Discord commands** for generation
+5. **Set up asset storage** and management
+
+### Phase 5: Build VTT (Phase 5A-D)
+
+1. **Set up VTT packages** (monorepo extension)
+2. **Implement GameStateManager** and WebSocket server
+3. **Create React + Pixi.js frontend**
+4. **Integrate existing features** (dice, characters, images)
+5. **Add advanced VTT features** (fog of war, etc.)
+
+### Phase 6: Deploy and Test
 
 1. **Set up Docker** on your PC
 2. **Choose deployment**:
@@ -2216,15 +2246,6 @@ Upload map: HTTP POST /api/maps/upload (once)
 3. **Test locally** first
 4. **Share link** with one test player
 5. **Iterate** based on feedback
-
-### Phase 5: Add Advanced Features
-
-1. **Drag & drop tokens**
-2. **Fog of War**
-3. **Dice animations**
-4. **Combat tracker**
-5. **Character sheets**
-6. **Discord OAuth** (authentication)
 
 ---
 
@@ -2238,28 +2259,32 @@ Ready to begin? Here's your immediate action plan:
 - [ ] If Cloudflare: Create free account + install cloudflared
 - [ ] Review Migration Guide (MIGRATION_GUIDE.md)
 
-### This Week
-- [ ] Set up monorepo structure (packages/backend, packages/frontend)
-- [ ] Move existing Discord bot code to packages/backend
-- [ ] Create basic Express server alongside Discord bot
-- [ ] Create basic React app with Vite
-- [ ] Test: Can you access React app in browser?
+### This Week (Phase 3B: Statistics)
+- [ ] Review existing dice rolling code
+- [ ] Implement probability calculator
+- [ ] Add Monte Carlo simulation
+- [ ] Create `/probability` Discord command
+- [ ] Test: Can you calculate TN success rates?
 
-### Next Week
-- [ ] Add Pixi.js canvas to React app
-- [ ] Implement WebSocket server in backend
-- [ ] Connect frontend to backend via WebSocket
-- [ ] Test: Can browser receive messages from backend?
+### Next Week (Phase 3C: Characters)
+- [ ] Design character sheet schema (L5R 4th Ed)
+- [ ] Implement character storage (SQLite)
+- [ ] Create `/character` Discord commands
+- [ ] Add character-based rolling
+- [ ] Test: Create character and roll with stats
 
-### Week 3
+### Week 3 (Phase 4: Images)
+- [ ] Set up image generation integration
+- [ ] Implement map generation
+- [ ] Create `/generate map` command
+- [ ] Add token generation
+- [ ] Test: Generate L5R-themed battle map
+
+### Week 4+ (Phase 5: VTT)
+- [ ] Set up VTT packages (frontend, vtt-server)
 - [ ] Implement GameStateManager
-- [ ] Make roll command work from VTT
-- [ ] Make roll from Discord appear in VTT
-- [ ] Test with real player!
-
-### Week 4
-- [ ] Add token rendering
-- [ ] Add basic map image
+- [ ] Create React + Pixi.js frontend
+- [ ] Add WebSocket integration
 - [ ] Deploy with chosen method (LAN or Cloudflare)
 - [ ] Share with gaming group
 - [ ] 🎉 Play your first game with VTT!
