@@ -47,9 +47,13 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Cloned WebUI repository (managed separately)
+stable-diffusion-webui/
+
 # Keep these files (important for setup)
 !README.md
 !docker-compose.yml
 !scripts/
 !test-prompts/
+!webui-local-config.sh
 !.gitignore

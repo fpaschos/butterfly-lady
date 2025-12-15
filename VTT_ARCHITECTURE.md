@@ -2257,7 +2257,7 @@ Ready to begin? Here's your immediate action plan:
 - [ ] Read this architecture document completely
 - [ ] Decide: LAN only or Cloudflare Tunnel?
 - [ ] If Cloudflare: Create free account + install cloudflared
-- [ ] Review Migration Guide (MIGRATION_GUIDE.md)
+- [ ] Review STATUS.md for current implementation status
 
 ### This Week (Phase 3B: Statistics)
 - [ ] Review existing dice rolling code
@@ -2294,9 +2294,9 @@ Ready to begin? Here's your immediate action plan:
 ## Resources
 
 ### Documentation
-- **VTT Architecture**: This document
-- **Migration Guide**: MIGRATION_GUIDE.md
-- **Implementation Summary**: IMPLEMENTATION_SUMMARY.md
+- **VTT Architecture**: This document (VTT_ARCHITECTURE.md)
+- **Project Status**: STATUS.md - Current implementation status and completed phases
+- **Main README**: README.md - User documentation and setup instructions
 
 ### External Resources
 - **Cloudflare Tunnel Docs**: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/

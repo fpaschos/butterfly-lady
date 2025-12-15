@@ -284,6 +284,33 @@ If missing, re-run: `./scripts/download_models.sh`
 3. Click **Install**
 4. Restart: `docker compose restart stable-diffusion`
 
+### Customizing WebUI Settings (Native Setup)
+
+The native setup uses `webui-local-config.sh` for configuration:
+
+```bash
+# Edit the local config file
+nano webui-local-config.sh
+```
+
+**Common customizations:**
+
+```bash
+# Change port
+export COMMANDLINE_ARGS="--skip-torch-cuda-test --no-half --precision full --api --listen --port 8080"
+
+# Enable live output during startup
+export WEBUI_LAUNCH_LIVE_OUTPUT=1
+
+# Add authentication
+export COMMANDLINE_ARGS="--skip-torch-cuda-test --no-half --precision full --api --listen --gradio-auth username:password"
+```
+
+**Why this file?**
+- Lives in R&D folder (tracked by git)
+- **NOT** part of WebUI repo (won't be overwritten by WebUI updates)
+- Easy to customize without modifying scripts
+
 ### Generation Is Too Slow
 
 **This is expected on macOS + Docker.**
@@ -329,6 +356,7 @@ Options:
 rnd/phase4-map-generation/
 ├── README.md                      # This file
 ├── docker-compose.yml             # Docker configuration
+├── webui-local-config.sh          # Local WebUI settings (native setup)
 ├── .gitignore                     # Excludes models/outputs from git
 │
 ├── models/                        # Downloaded models (not in git)
