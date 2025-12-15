@@ -1,0 +1,22 @@
+services:
+  stable-diffusion:
+    image: ghcr.io/ai-dock/stable-diffusion-webui:latest-cpu
+    container_name: l5r_sd_rnd
+    ports:
+      - "7860:17860"
+    volumes:
+      - ./models/checkpoints:/opt/stable-diffusion-webui/models/Stable-diffusion
+      - ./models/ControlNet:/opt/stable-diffusion-webui/models/ControlNet
+      - ./outputs:/opt/stable-diffusion-webui/outputs
+    environment:
+      - WEBUI_FLAGS=--skip-torch-cuda-test --precision full --no-half --use-cpu all --listen --port 17860 --enable-insecure-extension-access
+      - AUTO_UPDATE=false
+      - WEB_ENABLE_AUTH=false
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    deploy:
+      resources:
+        limits:
+          memory: 16g
+    restart: unless-stopped
