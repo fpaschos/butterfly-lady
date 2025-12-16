@@ -246,7 +246,7 @@ cd "$PROJECT_ROOT"
 # Step 6: Install ControlNet Extension
 # ============================================================
 echo ""
-echo "🎮 Step 6/6: Installing ControlNet extension..."
+echo "🎮 Step 6/7: Installing ControlNet extension..."
 echo ""
 
 EXTENSIONS_DIR="$WEBUI_DIR/extensions"
@@ -266,11 +266,44 @@ else
     fi
 fi
 
+# Verify style transfer models (IP-Adapter, Shuffle)
+echo ""
+echo "Verifying style transfer models..."
+STYLE_MODELS_FOUND=0
+
+if [ -f "$PROJECT_ROOT/models/ControlNet/ip-adapter_sd15.safetensors" ]; then
+    echo "✅ IP-Adapter model found"
+    STYLE_MODELS_FOUND=$((STYLE_MODELS_FOUND + 1))
+else
+    echo "⚠️  IP-Adapter model not found"
+fi
+
+if [ -d "$PROJECT_ROOT/models/ControlNet/image_encoder" ] && [ -f "$PROJECT_ROOT/models/ControlNet/image_encoder/model.safetensors" ]; then
+    echo "✅ CLIP Image Encoder found (required for IP-Adapter)"
+    STYLE_MODELS_FOUND=$((STYLE_MODELS_FOUND + 1))
+else
+    echo "⚠️  CLIP Image Encoder not found (required for IP-Adapter)"
+fi
+
+if [ -f "$PROJECT_ROOT/models/ControlNet/control_v11e_sd15_shuffle.safetensors" ]; then
+    echo "✅ Shuffle model found (style transfer)"
+    STYLE_MODELS_FOUND=$((STYLE_MODELS_FOUND + 1))
+else
+    echo "⚠️  Shuffle model not found"
+fi
+
+if [ $STYLE_MODELS_FOUND -lt 3 ]; then
+    echo ""
+    echo "ℹ️  Some style transfer models are missing."
+    echo "   Run ./scripts/download_models.sh to download them."
+    echo "   (These are optional but recommended for advanced style control)"
+fi
+
 # ============================================================
-# Step 6: Create Local Configuration
+# Step 7: Create Local Configuration
 # ============================================================
 echo ""
-echo "🎯 Step 6/6: Creating local configuration..."
+echo "🎯 Step 7/7: Creating local configuration..."
 echo ""
 
 LOCAL_CONFIG="$PROJECT_ROOT/webui-local-config.sh"
@@ -311,7 +344,8 @@ echo "  - WebUI: $WEBUI_DIR"
 echo "  - Conda env: sd-webui (Python 3.10)"
 echo "  - Models: Symlinked to $PROJECT_ROOT/models/"
 echo "  - Outputs: Symlinked to $PROJECT_ROOT/outputs/"
-echo "  - ControlNet: Installed"
+echo "  - ControlNet: Installed (Scribble, Lineart, Canny, Tile)"
+echo "  - Style Transfer: IP-Adapter + Shuffle (for art style matching)"
 echo ""
 echo "Next steps:"
 echo ""

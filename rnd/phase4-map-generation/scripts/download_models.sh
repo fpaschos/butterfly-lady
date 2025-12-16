@@ -109,6 +109,42 @@ else
     echo "✅ Tile model already exists"
 fi
 
+# Shuffle - style transfer without structure control
+if [ ! -f "control_v11e_sd15_shuffle.safetensors" ]; then
+    echo "⬇️  Downloading ControlNet Shuffle (style transfer)..."
+    wget -c --no-check-certificate https://huggingface.co/lllyasviel/control_v11e_sd15_shuffle/resolve/main/diffusion_pytorch_model.safetensors -O control_v11e_sd15_shuffle.safetensors
+    echo "✅ Shuffle model downloaded"
+else
+    echo "✅ Shuffle model already exists"
+fi
+
+echo ""
+echo "🎨 Downloading IP-Adapter models (style transfer)..."
+echo ""
+
+# IP-Adapter SD 1.5
+if [ ! -f "ip-adapter_sd15.safetensors" ]; then
+    echo "⬇️  Downloading IP-Adapter SD 1.5..."
+    wget -c --no-check-certificate https://huggingface.co/h94/IP-Adapter/resolve/main/models/ip-adapter_sd15.safetensors
+    echo "✅ IP-Adapter SD 1.5 downloaded"
+else
+    echo "✅ IP-Adapter SD 1.5 already exists"
+fi
+
+# CLIP Image Encoder (required for IP-Adapter)
+echo "⬇️  Downloading CLIP Image Encoder (required for IP-Adapter)..."
+mkdir -p image_encoder
+cd image_encoder
+
+if [ ! -f "model.safetensors" ]; then
+    wget -c --no-check-certificate https://huggingface.co/h94/IP-Adapter/resolve/main/models/image_encoder/model.safetensors
+    echo "✅ CLIP Image Encoder downloaded"
+else
+    echo "✅ CLIP Image Encoder already exists"
+fi
+
+cd ..
+
 cd ../..
 
 echo ""
@@ -118,12 +154,21 @@ echo "================================================"
 echo ""
 echo "Models saved to:"
 echo "  - models/checkpoints/ (base SD models)"
-echo "  - models/ControlNet/ (ControlNet processors)"
+echo "  - models/ControlNet/ (ControlNet processors + style transfer)"
 echo ""
-echo "Total size: ~10-15 GB"
+echo "ControlNet models included:"
+echo "  - Scribble (sketches → maps)"
+echo "  - Lineart (clean architectural lines)"
+echo "  - Canny (precise edge detection)"
+echo "  - Tile (upscaling/tiling)"
+echo "  - Shuffle (style transfer only)"
+echo "  - IP-Adapter (advanced style transfer)"
+echo ""
+echo "Total size: ~12-17 GB"
 echo ""
 echo "Next steps:"
-echo "  1. Start Docker: docker compose up -d"
-echo "  2. Open WebUI: http://localhost:7860"
-echo "  3. See README.md for setup instructions"
+echo "  1. Docker: docker compose up -d"
+echo "  2. Native: ./scripts/start-native-webui.sh"
+echo "  3. Open WebUI: http://localhost:7860"
+echo "  4. See README.md for setup instructions"
 echo ""
