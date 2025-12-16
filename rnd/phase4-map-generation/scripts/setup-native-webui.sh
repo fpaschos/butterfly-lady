@@ -204,12 +204,40 @@ ln -s ../../models/ControlNet models/ControlNet
 
 # Verify symlinks
 if [ -L "models/Stable-diffusion" ] && [ -L "models/ControlNet" ]; then
-    echo "✅ Symlinks created successfully"
+    echo "✅ Model symlinks created successfully"
     echo "   models/Stable-diffusion -> ../../models/checkpoints"
     echo "   models/ControlNet -> ../../models/ControlNet"
 else
-    echo "❌ Failed to create symlinks"
+    echo "❌ Failed to create model symlinks"
     exit 1
+fi
+
+# Create outputs symlink to redirect generated images to project outputs folder
+echo ""
+echo "Creating outputs symlink..."
+
+# Ensure project outputs directory exists
+mkdir -p "$PROJECT_ROOT/outputs"
+
+if [ -d "outputs" ] && [ ! -L "outputs" ]; then
+    mv outputs outputs.backup
+    echo "   Backed up existing outputs to outputs.backup"
+fi
+
+# Remove if it's already a symlink (for reinstalls)
+if [ -L "outputs" ]; then
+    rm outputs
+fi
+
+ln -s ../outputs outputs
+
+if [ -L "outputs" ]; then
+    echo "✅ Outputs symlink created successfully"
+    echo "   outputs -> ../outputs"
+    echo "   (Generated images will save to $PROJECT_ROOT/outputs/)"
+else
+    echo "⚠️  Failed to create outputs symlink"
+    echo "   Images will save to WebUI's default location"
 fi
 
 cd "$PROJECT_ROOT"
@@ -282,6 +310,7 @@ echo "Installation summary:"
 echo "  - WebUI: $WEBUI_DIR"
 echo "  - Conda env: sd-webui (Python 3.10)"
 echo "  - Models: Symlinked to $PROJECT_ROOT/models/"
+echo "  - Outputs: Symlinked to $PROJECT_ROOT/outputs/"
 echo "  - ControlNet: Installed"
 echo ""
 echo "Next steps:"
