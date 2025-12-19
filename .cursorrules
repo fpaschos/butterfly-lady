@@ -158,11 +158,17 @@ See **STATUS.md** for:
 
 ### Architecture Planning
 See **VTT_ARCHITECTURE.md** for:
-- Complete VTT architecture design (Phase 5)
+- Backend architecture (GameStateManager, services, WebSocket)
 - Deployment options (LAN, Cloudflare Tunnel)
-- Tech stack decisions
-- Integration patterns
-- Phase 5 implementation plan
+- Communication patterns (HTTP, WebSocket, Discord)
+- Backend implementation phases
+
+See **FRONTEND_ARCHITECTURE.md** for:
+- Unified frontend (Map Editor + VTT)
+- PixiJS engine systems (tools, collision, lighting)
+- ComfyUI integration (AI map generation)
+- React + PixiJS architecture
+- State management and storage
 
 ## Environment Variables
 ```env
@@ -198,7 +204,8 @@ DICE_SEED=...               # Optional: Deterministic RNG for testing
 
 ### Key Files
 - `STATUS.md` - Current implementation status
-- `VTT_ARCHITECTURE.md` - Phase 5 (VTT) architecture plans
+- `VTT_ARCHITECTURE.md` - Backend architecture and deployment
+- `FRONTEND_ARCHITECTURE.md` - Frontend (Map Editor + VTT) architecture
 - `README.md` - User documentation and setup
 - `packages/core/src/dice/` - Core dice rolling logic
 - `packages/bot/src/commands/` - Discord slash commands
@@ -232,26 +239,31 @@ DICE_SEED=...               # Optional: Deterministic RNG for testing
 ### Existing Documentation Files
 - **README.md** - User documentation, setup, command reference
 - **STATUS.md** - Current implementation status, completed phases, next steps
-- **VTT_ARCHITECTURE.md** - Architecture design and planning for Phase 5 (VTT)
+- **VTT_ARCHITECTURE.md** - Backend architecture, deployment, communication patterns
+- **FRONTEND_ARCHITECTURE.md** - Frontend (Map Editor + VTT UI), PixiJS systems, ComfyUI integration
 
 ### Documentation Rules (Main Project)
 - **DO NOT create new .md files** without explicit user approval
 - **Update existing files** rather than creating new ones
 - **Propose first**: If you think a new documentation file is needed, ask the user
-- **No bloat**: Keep documentation consolidated in the three core files
+- **No bloat**: Keep documentation consolidated in the four core files
 - **No temporary files**: Don't create planning docs, task lists, or scratch files
 - **In-code documentation**: Use JSDoc and comments for code-level documentation
 
 ### R&D Exception (`rnd/` folder)
 - **Free documentation**: Create any `.md` files needed for R&D work
 - **Isolated testing**: R&D folders are temporary and experimental
-- **No main project updates**: DO NOT update STATUS.md, VTT_ARCHITECTURE.md, or README.md for R&D work unless explicitly requested
+- **No main project updates**: DO NOT update STATUS.md, VTT_ARCHITECTURE.md, FRONTEND_ARCHITECTURE.md, or README.md for R&D work unless explicitly requested
 - **R&D stays isolated**: R&D findings don't affect main project documentation until user approval
 - **Temporary by nature**: R&D folders may be deleted or restarted at any time
 
 ### When Working in Agent/Plan Mode
 - Reference existing documentation files for context
-- Propose updates to README.md, STATUS.md, or VTT_ARCHITECTURE.md as needed
+- Propose updates to core documentation files as needed:
+  - README.md - User-facing features and setup
+  - STATUS.md - Implementation progress and next steps
+  - VTT_ARCHITECTURE.md - Backend services and deployment
+  - FRONTEND_ARCHITECTURE.md - Frontend implementation details
 - Do not generate separate architecture diagrams, planning docs, or task breakdown files
 - Keep all project knowledge in the established documentation structure
 - **Exception**: R&D folders can have their own documentation freely

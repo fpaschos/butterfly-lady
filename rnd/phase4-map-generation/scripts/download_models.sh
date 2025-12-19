@@ -43,6 +43,24 @@ else
     echo "✅ DreamShaper 8 already exists"
 fi
 
+# GhostMix v2.0 (2.5D artistic style, excellent for Asian themes and fantasy game assets)
+if [ ! -f "ghostmix_v20Bakedvae.safetensors" ]; then
+    echo "⬇️  Downloading GhostMix v2.0-BakedVAE..."
+    wget -c https://civitai.com/api/download/models/76907 -O ghostmix_v20Bakedvae.safetensors
+    echo "✅ GhostMix v2.0-BakedVAE downloaded"
+else
+    echo "✅ GhostMix v2.0-BakedVAE already exists"
+fi
+
+# RealisticVision v5.1 (photorealistic, excellent for top-down battlemaps and architectural detail)
+if [ ! -f "realisticVisionV51_v51VAE.safetensors" ]; then
+    echo "⬇️  Downloading RealisticVision v5.1 (with VAE)..."
+    wget -c https://civitai.com/api/download/models/130072 -O realisticVisionV51_v51VAE.safetensors
+    echo "✅ RealisticVision v5.1 downloaded"
+else
+    echo "✅ RealisticVision v5.1 already exists"
+fi
+
 cd ../ControlNet
 
 echo ""
@@ -74,6 +92,15 @@ if [ ! -f "control_v11p_sd15_canny.safetensors" ]; then
     echo "✅ Canny model downloaded"
 else
     echo "✅ Canny model already exists"
+fi
+
+# Seg - semantic segmentation for precise object placement
+if [ ! -f "control_v11p_sd15_seg.safetensors" ]; then
+    echo "⬇️  Downloading ControlNet Seg (segmentation)..."
+    wget -c https://huggingface.co/lllyasviel/control_v11p_sd15_seg/resolve/main/diffusion_pytorch_model.safetensors -O control_v11p_sd15_seg.safetensors
+    echo "✅ Seg model downloaded"
+else
+    echo "✅ Seg model already exists"
 fi
 
 # Tile - for upscaling larger maps (optional)
@@ -131,6 +158,15 @@ else
     echo "✅ IP-Adapter SD 1.5 already exists"
 fi
 
+# IP-Adapter Plus SD 1.5 (enhanced version with better quality)
+if [ ! -f "ip-adapter-plus_sd15.safetensors" ]; then
+    echo "⬇️  Downloading IP-Adapter Plus SD 1.5..."
+    wget -c --no-check-certificate https://huggingface.co/h94/IP-Adapter/resolve/main/models/ip-adapter-plus_sd15.safetensors
+    echo "✅ IP-Adapter Plus SD 1.5 downloaded"
+else
+    echo "✅ IP-Adapter Plus SD 1.5 already exists"
+fi
+
 # CLIP Image Encoder (required for IP-Adapter)
 echo "⬇️  Downloading CLIP Image Encoder (required for IP-Adapter)..."
 mkdir -p image_encoder
@@ -145,7 +181,25 @@ fi
 
 cd ..
 
-cd ../..
+echo ""
+echo "🎨 Downloading LoRA models (style enhancement)..."
+echo ""
+
+cd ../Lora
+
+# Create Lora directory if it doesn't exist
+mkdir -p .
+
+# Table RPG / D&D Maps LoRA (excellent for top-down battlemaps)
+if [ ! -f "TableRPGv1.safetensors" ]; then
+    echo "⬇️  Downloading Table RPG LoRA..."
+    wget -c https://civitai.com/api/download/models/76438 -O TableRPGv1.safetensors
+    echo "✅ Table RPG LoRA downloaded"
+else
+    echo "✅ Table RPG LoRA already exists"
+fi
+
+cd ..
 
 echo ""
 echo "================================================"
@@ -155,16 +209,27 @@ echo ""
 echo "Models saved to:"
 echo "  - models/checkpoints/ (base SD models)"
 echo "  - models/ControlNet/ (ControlNet processors + style transfer)"
+echo "  - models/Lora/ (LoRA style enhancements)"
+echo ""
+echo "Checkpoint models included:"
+echo "  - SD v1.5 (base model)"
+echo "  - DreamShaper 8 (versatile, realistic)"
+echo "  - GhostMix v2.0 (2.5D artistic, excellent for Asian/fantasy themes)"
+echo "  - RealisticVision v5.1 (photorealistic, best for top-down battlemaps)"
 echo ""
 echo "ControlNet models included:"
 echo "  - Scribble (sketches → maps)"
 echo "  - Lineart (clean architectural lines)"
 echo "  - Canny (precise edge detection)"
+echo "  - Seg (semantic segmentation)"
 echo "  - Tile (upscaling/tiling)"
 echo "  - Shuffle (style transfer only)"
-echo "  - IP-Adapter (advanced style transfer)"
+echo "  - IP-Adapter + IP-Adapter Plus (advanced style transfer)"
 echo ""
-echo "Total size: ~12-17 GB"
+echo "LoRA models included:"
+echo "  - Table RPG v1 (top-down battlemap style enhancement)"
+echo ""
+echo "Total size: ~17-23 GB"
 echo ""
 echo "Next steps:"
 echo "  1. Docker: docker compose up -d"

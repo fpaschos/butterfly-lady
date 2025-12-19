@@ -1,21 +1,24 @@
-# 🦋 Butterfly Lady VTT + Discord Bot Architecture
+# 🦋 Butterfly Lady Backend + VTT Architecture
 
-> **Document Version**: 2.0 - Corrected deployment guidance (Dec 2024)
+> **Document Version**: 3.0 - Backend Focus (Dec 2024)
 > 
-> **Key Corrections from v1.0**:
-> - ✅ Clarified temporary vs named Cloudflare Tunnels
-> - ✅ Domain requirement for production use ($1-3/year)
-> - ✅ Fixed Docker networking (no exposed ports with tunnel)
-> - ✅ Corrected WebSocket URLs (wss:// for browsers)
-> - ✅ Added Cloudflare Access as auth option
-> - ✅ cloudflared in Docker recommended
-> - ✅ DEV vs PROD clarification
+> **Related Documentation**:
+> - [FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md) - Frontend (Map Editor + VTT UI)
+> - [STATUS.md](STATUS.md) - Current implementation status
+> - [README.md](README.md) - User documentation
+> 
+> **Key Changes from v2.0**:
+> - ✅ Separated frontend architecture to FRONTEND_ARCHITECTURE.md
+> - ✅ Focus on backend services and communication
+> - ✅ Removed detailed React/Pixi implementation (see FRONTEND_ARCHITECTURE.md)
 
 ## Overview
 
 Unified Node.js/TypeScript backend serving both:
 1. **Discord Bot** (Discord.js) - Slash commands for rolling, character management
-2. **VTT Server** (Express + WebSocket) - React/Pixi.js frontend with real-time sync
+2. **VTT Server** (Express + WebSocket) - HTTP API + real-time sync with frontend
+
+**Frontend**: See [FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md) for React + Pixi.js implementation details.
 
 ## Deployment: Local & Free 💰
 
@@ -114,6 +117,8 @@ This system runs **on your PC** with Docker. Players access VTT via links in Dis
 
 **Both share Zustand store** (state management)
 - WebSocket updates store → React + Pixi both re-render
+
+**For detailed frontend architecture**, see [FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md)
 
 ### Visual Summary: The Big Picture
 
@@ -544,57 +549,26 @@ butterfly-lady/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   ├── frontend/                  # React + Pixi.js VTT
+│   ├── frontend/                  # React + Pixi.js (Map Editor + VTT)
 │   │   ├── src/
-│   │   │   ├── App.tsx
+│   │   │   ├── App.tsx            # Router: /editor and /vtt routes
 │   │   │   ├── main.tsx
-│   │   │   │
-│   │   │   ├── components/
-│   │   │   │   ├── Map/           # Pixi.js components
-│   │   │   │   │   ├── PixiMap.tsx      # Main canvas
-│   │   │   │   │   ├── Token.tsx        # Character token
-│   │   │   │   │   ├── Grid.tsx         # Grid overlay
-│   │   │   │   │   └── FogOfWar.tsx     # Fog system
-│   │   │   │   │
-│   │   │   │   ├── UI/            # React UI overlays
-│   │   │   │   │   ├── Sidebar.tsx
-│   │   │   │   │   ├── Toolbar.tsx
-│   │   │   │   │   └── ChatPanel.tsx    # Discord sync
-│   │   │   │   │
-│   │   │   │   ├── Dice/
-│   │   │   │   │   ├── DiceRoller.tsx   # UI for rolling
-│   │   │   │   │   └── DiceAnimation.tsx # 3D dice
-│   │   │   │   │
-│   │   │   │   ├── Character/
-│   │   │   │   │   ├── CharacterSheet.tsx
-│   │   │   │   │   ├── CharacterList.tsx
-│   │   │   │   │   └── QuickStats.tsx
-│   │   │   │   │
-│   │   │   │   └── Combat/
-│   │   │   │       ├── InitiativeTracker.tsx
-│   │   │   │       ├── TurnOrder.tsx
-│   │   │   │       └── HealthBar.tsx
-│   │   │   │
-│   │   │   ├── hooks/
-│   │   │   │   ├── useWebSocket.ts      # WS connection
-│   │   │   │   ├── useGameState.ts      # Zustand store
-│   │   │   │   ├── usePixi.ts           # Pixi helpers
-│   │   │   │   └── useDice.ts           # Dice rolling
-│   │   │   │
-│   │   │   ├── services/
-│   │   │   │   ├── api.ts               # HTTP client
-│   │   │   │   └── websocket.ts         # WS client
-│   │   │   │
-│   │   │   ├── store/
-│   │   │   │   └── gameStore.ts         # Zustand store
-│   │   │   │
-│   │   │   └── types/                   # Shared types
+│   │   │   ├── pages/
+│   │   │   │   ├── MapEditor.tsx  # Map creation & AI generation
+│   │   │   │   └── VTT.tsx        # Game view
+│   │   │   ├── components/        # UI components
+│   │   │   ├── engine/            # PixiJS systems
+│   │   │   ├── services/          # ComfyUI, API, storage
+│   │   │   ├── store/             # Zustand state
+│   │   │   └── types/
 │   │   │
 │   │   ├── public/
-│   │   │   └── assets/                  # Map tiles, tokens
+│   │   │   └── workflows/         # ComfyUI JSON workflows
 │   │   ├── package.json
 │   │   ├── vite.config.ts
 │   │   └── tsconfig.json
+│   │
+│   │   # See FRONTEND_ARCHITECTURE.md for complete structure
 │   │
 │   └── shared/                    # Shared TypeScript types
 │       ├── src/
@@ -681,164 +655,22 @@ gameState.on('roll', ({ gameId, roll }) => {
 ✅ **Consistent**: Same event triggers multiple actions  
 ✅ **Real-Time**: Changes propagate immediately to all clients  
 
-## React vs Pixi.js in the VTT App
+## Frontend Overview
 
-### VTT Application Structure
+The VTT frontend is a **unified React + Pixi.js application** that serves two modes:
 
-The VTT frontend is a **single React application** that uses **both React and Pixi.js**:
+1. **Map Editor** (`/editor`) - Create and AI-generate L5R battle maps
+2. **VTT Game** (`/vtt`) - Play L5R games with real-time synchronization
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│              VTT APPLICATION (Browser)                       │
-│              Single React App                               │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │                React Components (UI Layer)              │ │
-│  │  • Sidebar                    • Chat Panel              │ │
-│  │  • Toolbar                    • Character Sheets        │ │
-│  │  • Dice Roller                • Combat Tracker          │ │
-│  │  • Modals/Dialogs             • Settings                │ │
-│  │                                                          │ │
-│  │  Role: HTML/CSS UI elements (buttons, forms, lists)    │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                             │                                │
-│                             │ Renders                        │
-│                             ▼                                │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │           Pixi.js Canvas (Game Map Layer)              │ │
-│  │  • 2D Game Map                • Tokens                  │ │
-│  │  • Grid                       • Fog of War              │ │
-│  │  • Measurements               • Visual Effects          │ │
-│  │                                                          │ │
-│  │  Role: WebGL-rendered game board (NOT HTML/CSS)        │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                             │                                │
-│                             │ Both use                       │
-│                             ▼                                │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │            Zustand Store (Shared State)                │ │
-│  │  • Game state           • Character data               │ │
-│  │  • Token positions      • Combat state                 │ │
-│  │  • Roll results         • Map data                     │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                             │                                │
-│                             │ Updates from                   │
-│                             ▼                                │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │              WebSocket Connection                      │ │
-│  │  Receives events from backend                          │ │
-│  │  Sends actions to backend                              │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+**See [FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md) for complete frontend details**, including:
+- Map editor tools (blob fill, roads, buildings)
+- ComfyUI integration (AI generation)
+- Wall extraction (collision & lighting)
+- PixiJS engine architecture
+- Component structure
+- State management
 
-### Division of Responsibilities
-
-#### React Components
-**What**: Traditional UI elements  
-**Rendered with**: HTML + CSS (DOM)  
-**Examples**:
-- Sidebar with character list
-- Chat panel showing messages
-- Dice roller form (input fields, buttons)
-- Combat tracker table
-- Modal dialogs
-
-**Why React**: 
-- Great for forms, lists, text
-- Easy state management
-- Accessible (screen readers, keyboard nav)
-
-#### Pixi.js Canvas
-**What**: Interactive game map  
-**Rendered with**: WebGL (GPU-accelerated)  
-**Examples**:
-- 2D game map with tiles
-- Character tokens (draggable sprites)
-- Grid overlay
-- Fog of War (dynamic masking)
-- Measurement rulers
-- Area-of-effect circles
-
-**Why Pixi.js**:
-- Performance: 1000+ sprites at 60fps
-- WebGL acceleration
-- Perfect for game graphics
-- Smooth animations, particle effects
-
-### How React and Pixi.js Work Together
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  App.tsx (React Root)                                        │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  <div className="vtt-layout">                          │ │
-│  │                                                         │ │
-│  │    <Sidebar />     ← React component                   │ │
-│  │                                                         │ │
-│  │    <div className="map-container">                     │ │
-│  │      <PixiMap />  ← React wrapper for Pixi canvas      │ │
-│  │    </div>                                              │ │
-│  │                                                         │ │
-│  │    <ChatPanel />   ← React component                   │ │
-│  │                                                         │ │
-│  │  </div>                                                │ │
-│  └────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Inside `<PixiMap />` (React component):
-```typescript
-// This is a React component that creates a Pixi canvas
-function PixiMap() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pixiApp = useRef<PIXI.Application>(null);
-  
-  useEffect(() => {
-    // Create Pixi.js application (runs once)
-    pixiApp.current = new PIXI.Application({
-      view: canvasRef.current,
-      width: 1600,
-      height: 1200,
-    });
-    
-    // Add sprites, grid, etc. to Pixi stage
-    const token = new PIXI.Sprite(texture);
-    pixiApp.current.stage.addChild(token);
-  }, []);
-  
-  // React renders the canvas element
-  // Pixi.js draws INTO the canvas
-  return <canvas ref={canvasRef} />;
-}
-```
-
-### Example: Token Movement Flow
-
-```
-1. User drags token on Pixi canvas
-   ↓
-2. Pixi.js detects drag event (internal to Pixi)
-   ↓
-3. React component handler gets called
-   ↓
-4. Component sends WebSocket message:
-   { type: 'TOKEN_MOVE', tokenId: 'abc', position: {x: 5, y: 3} }
-   ↓
-5. Backend receives, updates GameStateManager
-   ↓
-6. Backend broadcasts to ALL VTT clients
-   ↓
-7. VTT receives WebSocket message
-   ↓
-8. Zustand store updates
-   ↓
-9. React component re-renders (not visible to user)
-   ↓
-10. Pixi.js sprite position updates (visible animation)
-```
+**This document focuses on the backend.**
 
 ## Tech Stack
 
@@ -1198,59 +1030,50 @@ const socket = new WebSocket('ws://backend:3000');
 
 ## Implementation Phases
 
-### Phase 3B: Statistics & Probability (Week 1-2)
-- [ ] Roll probability calculator
+**See [STATUS.md](STATUS.md) for current progress.**
+
+### Phase 3B: Statistics & Probability (Backend)
+- [ ] Roll probability calculator (core logic)
 - [ ] Success rate analysis
 - [ ] Monte Carlo simulations
-- [ ] Statistical comparisons (skilled vs mastery)
-- [ ] Optimal emphasis calculations
 - [ ] Discord commands for probability queries
+- [ ] API endpoints for probability calculations
 
-### Phase 3C: Character Management (Week 2-3)
+### Phase 3C: Character Management (Backend)
 - [ ] Character sheet storage (JSON/SQLite)
-- [ ] Character creation and editing
-- [ ] Quick stats display
-- [ ] Roll with character stats
-- [ ] Character list and lookup
+- [ ] Character CRUD operations
+- [ ] CharacterService implementation
 - [ ] Discord commands for character management
+- [ ] HTTP API endpoints for characters
 
-### Phase 4: Image Generation (Week 3-4)
-- [ ] AI-generated battle maps
-- [ ] Token/character portrait generation
-- [ ] Map variations and themes
-- [ ] Integration with VTT preparation
-- [ ] Discord commands for generation
-- [ ] Asset storage and management
+### Phase 4: Image Generation (Backend + Frontend)
+- **Backend**:
+  - [ ] Asset storage service
+  - [ ] Discord commands for generation
+  - [ ] API endpoints for map/token management
+- **Frontend** (see FRONTEND_ARCHITECTURE.md):
+  - [ ] Map editor implementation
+  - [ ] ComfyUI integration
+  - [ ] Generation workflow UI
 
-### Phase 5A: VTT Foundation (Week 4-5)
-- [ ] Set up VTT packages (vtt-server, frontend)
-- [ ] Create `packages/frontend` with Vite + React
-- [ ] Create Express server in backend
-- [ ] Add WebSocket server
-- [ ] Basic GameStateManager
-- [ ] Simple HTTP API (`GET /api/health`)
+### Phase 5: VTT Backend (Backend Services)
+- [ ] GameStateManager singleton (event emitter)
+- [ ] Express HTTP server (serve frontend)
+- [ ] WebSocket server (real-time sync)
+- [ ] SyncService (Discord ↔ VTT)
+- [ ] HTTP API routes:
+  - [ ] GET /api/game/:id/state
+  - [ ] POST /api/game/:id/token/move
+  - [ ] POST /api/roll
+  - [ ] GET /api/characters
+  - [ ] POST /api/maps/upload
+- [ ] WebSocket message handlers:
+  - [ ] ROLL
+  - [ ] TOKEN_MOVE
+  - [ ] CHAT_MESSAGE
+  - [ ] COMBAT_UPDATE
 
-### Phase 5B: Basic VTT (Week 5-6)
-- [ ] Pixi.js canvas with grid
-- [ ] Token rendering (static)
-- [ ] WebSocket connection (frontend ↔ backend)
-- [ ] Basic chat UI
-- [ ] Dice roller UI (calls existing logic)
-
-### Phase 5C: Deep Integration (Week 6-7)
-- [ ] SyncService implementation
-- [ ] Discord → VTT roll sync
-- [ ] VTT → Discord roll sync
-- [ ] Shared character sheets (from Phase 3C)
-- [ ] Combat tracker (basic)
-
-### Phase 5D: Advanced VTT (Week 7-8)
-- [ ] Drag & drop tokens
-- [ ] Fog of War
-- [ ] Measurement tools
-- [ ] Dice animations (3D or 2D)
-- [ ] Map upload/management (use Phase 4 AI-generated maps)
-- [ ] GM tools (show/hide tokens)
+**Frontend implementation** (map editor, VTT UI, PixiJS systems) covered in [FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md)
 
 ## Deployment
 
@@ -2294,9 +2117,10 @@ Ready to begin? Here's your immediate action plan:
 ## Resources
 
 ### Documentation
-- **VTT Architecture**: This document (VTT_ARCHITECTURE.md)
-- **Project Status**: STATUS.md - Current implementation status and completed phases
-- **Main README**: README.md - User documentation and setup instructions
+- **Backend + Deployment**: This document (VTT_ARCHITECTURE.md)
+- **Frontend Details**: FRONTEND_ARCHITECTURE.md - Map editor, VTT UI, PixiJS
+- **Project Status**: STATUS.md - Current implementation status
+- **User Guide**: README.md - Setup and command reference
 
 ### External Resources
 - **Cloudflare Tunnel Docs**: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/
