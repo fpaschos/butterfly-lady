@@ -38,3 +38,10 @@ postgres-data/
 # Pnpm
 .pnpm-store/
 
+# R&D: Stable Diffusion models (large files)
+models/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+

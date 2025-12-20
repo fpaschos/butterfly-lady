@@ -18,13 +18,13 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
 - **🎯 Seedrandom RNG** - OS-entropy based randomness with testing support
 
 ### 🔮 Coming Soon
-- **Phase 3**: VTT Integration - Virtual tabletop with React + Pixi.js
+- **Phase 3B**: Statistics & Probability - Roll simulations and probability analysis
+- **Phase 3C**: Character Management - Store character sheets and quick stats
+- **Phase 4**: Image Generation - AI-generated maps and tokens
+- **Phase 5**: VTT Integration - Virtual tabletop with React + Pixi.js
   - Real-time map and token management
   - Discord ↔ VTT synchronization
   - Fog of war and measurement tools
-- **Phase 4**: Statistics Emulator - Probability simulations for rolls
-- **Phase 5**: RAG Integration - L5R lore/rules lookup with AI
-- **Phase 6**: Character Management - Store character sheets
 
 ## Quick Start
 
@@ -342,12 +342,12 @@ The monorepo structure provides:
 ## Contributing
 
 This bot is in active development. Planned features:
-- Phase 3: VTT server with React + Pixi.js frontend
-- Phase 4: Roll statistics and probability analysis
-- Phase 5: RAG-based L5R lore/rules lookup
-- Phase 6: Character sheet management
+- Phase 3B: Statistics and probability analysis
+- Phase 3C: Character sheet management
+- Phase 4: AI-generated maps and tokens
+- Phase 5: VTT server with React + Pixi.js frontend
 
-See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for detailed Phase 3 plans.
+See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for detailed Phase 5 plans.
 
 ## Reference
 
