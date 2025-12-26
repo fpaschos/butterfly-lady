@@ -1,0 +1,13 @@
+# Rust build artifacts
+target/
+
+# Cargo.lock (for binaries, not libraries)
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+

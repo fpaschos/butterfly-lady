@@ -4,7 +4,8 @@
 
 **Phase 1:** ✅ Complete (Basic Roll & Keep)  
 **Phase 2:** ✅ Complete (Advanced L5R Mechanics)  
-**Phase 3A:** ✅ Complete (Monorepo Restructure)
+**Phase 3A:** ✅ Complete (Monorepo Restructure)  
+**Phase 3B (Step 1):** ✅ Complete (Rust Probability Calculator)
 
 ## 🎯 What Works
 
@@ -31,6 +32,7 @@ All core functionality is implemented and working:
 - ✅ Full type safety in core logic
 - ✅ Error handling
 - ✅ Docker support (dev & prod)
+- ✅ Rust probability calculator (Phase 3B Step 1)
 
 ## 📝 Example Commands
 
@@ -67,6 +69,9 @@ packages/
 ├── core/          # @butterfly-lady/core - Pure L5R logic
 ├── bot/           # @butterfly-lady/bot - Discord integration
 └── backend/       # @butterfly-lady/backend - Main entry point
+
+tools/
+└── probability-calculator/  # Rust tool for generating probability tables
 ```
 
 **Dependency chain:** backend → bot → core (no circular deps)
@@ -151,27 +156,45 @@ Test these commands to verify everything works:
 - ✅ **Phase 1**: Basic Roll & Keep dice system
 - ✅ **Phase 2**: Advanced L5R 4th Edition mechanics (explosions, TNs, raises, emphasis)
 - ✅ **Phase 3A**: Monorepo restructure (clean architecture for VTT integration)
+- 🚧 **Phase 3B**: Statistics & probability (Step 1/2 complete)
+  - ✅ Step 1: Rust probability calculator (generates lookup tables)
+  - ⏳ Step 2: `/prop` command (query precomputed probabilities)
 
 ### Architecture Ready For:
-- **Phase 3B**: Statistics & probability simulations
 - **Phase 3C**: Character management
 - **Phase 4**: Image generation (AI maps/tokens)
 - **Phase 5**: VTT Server (can add `packages/vtt-server` and `packages/frontend`)
 
 ## 🎯 Next Steps
 
-1. **Verify the bot runs**:
-   ```bash
-   pnpm run dev
-   ```
+### Phase 3B Step 1: Generate Probability Tables
 
-2. **Test commands in Discord**
+Run the Rust calculator to generate probability lookup tables:
 
-3. **Review architecture for next phases**:
-   - Phase 3B: Statistics and probability analysis
-   - Phase 3C: Character management
-   - Phase 4: Image generation
-   - Phase 5: See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for VTT server plans
+```bash
+cd tools/probability-calculator
+cargo run --release
+```
+
+This will generate `packages/core/data/probability-tables.json` containing:
+- 330 roll configurations (55 pools × 3 explosion modes × 2 emphasis states)
+- Cumulative probabilities: P(total ≥ TN) for each configuration
+- Statistics: mean, stddev, median, percentiles
+- Expected runtime: 2-5 minutes (100M+ simulations)
+
+### Phase 3B Step 2: Implement `/prop` Command
+
+Next step: Create Discord command to query precomputed probabilities:
+- `/prop 5k3 tn:25` → show P(success), mean, percentiles
+- `/prop 7k4 m e tn:30` → support all explosion modes and emphasis
+- Fast O(1) lookups from generated tables
+
+### Other Next Steps
+
+1. **Continue bot development**: Test commands in Discord
+2. **Phase 3C**: Character management
+3. **Phase 4**: Image generation
+4. **Phase 5**: See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for VTT server plans
 
 ---
 

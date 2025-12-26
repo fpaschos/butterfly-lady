@@ -1,0 +1,15 @@
+[package]
+name = "probability-calculator"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+
+[[bin]]
+name = "probability-calculator"
+path = "src/main.rs"
+
