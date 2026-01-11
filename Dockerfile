@@ -51,6 +51,7 @@ RUN pnpm install --prod --frozen-lockfile
 
 # Copy built application from base
 COPY --from=base /app/packages/core/dist ./packages/core/dist
+COPY --from=base /app/packages/core/data ./packages/core/data
 COPY --from=base /app/packages/bot/dist ./packages/bot/dist
 COPY --from=base /app/packages/backend/dist ./packages/backend/dist
 COPY --from=base /app/data ./data
