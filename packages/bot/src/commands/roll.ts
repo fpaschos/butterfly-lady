@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { 
+  SlashCommandBuilder, 
+  ChatInputCommandInteraction,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} from 'discord.js';
 import { parseRollExpression, executeRoll } from '@butterfly-lady/core';
 import { Command } from '../types/commands.js';
 import { createRollEmbed, createErrorEmbed } from '../formatters/rollEmbed.js';
@@ -26,7 +32,35 @@ export const rollCommand: Command = {
       
       // Create and send the embed
       const embed = createRollEmbed(result, interaction.user.username);
-      await interaction.reply({ embeds: [embed] });
+      
+      // Create buttons
+      const buttons: ButtonBuilder[] = [];
+      
+      // Always include reroll button
+      const rerollButton = new ButtonBuilder()
+        .setCustomId(`roll:${expressionInput}`)
+        .setEmoji('🔄')
+        .setLabel('Reroll')
+        .setStyle(ButtonStyle.Secondary);
+      buttons.push(rerollButton);
+      
+      // Add probability button if TN exists
+      if (options.targetNumber !== undefined) {
+        const probButton = new ButtonBuilder()
+          .setCustomId(`prob:${expressionInput}`)
+          .setEmoji('📊')
+          .setLabel('Stats')
+          .setStyle(ButtonStyle.Primary);
+        buttons.push(probButton);
+      }
+
+      const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(...buttons);
+
+      await interaction.reply({ 
+        embeds: [embed],
+        components: [row]
+      });
       
     } catch (error) {
       // Handle parsing or execution errors

@@ -4,11 +4,18 @@ import {
   REST, 
   Routes,
   Collection,
-  ChatInputCommandInteraction
+  ChatInputCommandInteraction,
+  ButtonInteraction,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
 } from 'discord.js';
+import { parseRollExpression, executeRoll } from '@butterfly-lady/core';
 import { Command } from './types/commands.js';
 import { rollCommand } from './commands/roll.js';
 import { helpCommand } from './commands/help.js';
+import { probCommand } from './commands/prob.js';
+import { createRollEmbed, createErrorEmbed } from './formatters/rollEmbed.js';
 
 // Re-export Client for use by backend
 export type { Client } from 'discord.js';
@@ -45,7 +52,8 @@ export async function startBot(config: BotConfig): Promise<Client> {
   // Register commands
   const commands: Command[] = [
     rollCommand,
-    helpCommand
+    helpCommand,
+    probCommand
   ];
 
   // Add commands to collection
@@ -98,6 +106,13 @@ export async function startBot(config: BotConfig): Promise<Client> {
 
   // Handle interactions
   client.on('interactionCreate', async interaction => {
+    // Handle button interactions
+    if (interaction.isButton()) {
+      await handleButtonInteraction(interaction);
+      return;
+    }
+
+    // Handle slash command interactions
     if (!interaction.isChatInputCommand()) return;
     
     const command = client.commands.get(interaction.commandName);
@@ -138,6 +153,168 @@ export async function startBot(config: BotConfig): Promise<Client> {
   await client.login(token);
   
   return client;
+}
+
+/**
+ * Handle button interactions (e.g., "Roll" from /prob, "Reroll" from /roll)
+ */
+async function handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
+  // Parse button customId (format: "roll:expression" or "prob:expression")
+  if (interaction.customId.startsWith('roll:')) {
+    await handleRollButton(interaction);
+  } else if (interaction.customId.startsWith('prob:')) {
+    await handleProbButton(interaction);
+  } else {
+    console.warn(`⚠️ Unknown button customId: ${interaction.customId}`);
+  }
+}
+
+/**
+ * Handle roll/reroll button
+ */
+async function handleRollButton(interaction: ButtonInteraction): Promise<void> {
+  const expressionInput = interaction.customId.substring(5); // Remove "roll:" prefix
+
+  try {
+    // Parse the roll expression and options
+    const { expression, options } = parseRollExpression(expressionInput);
+    
+    // Execute the roll with all options
+    const result = executeRoll(expression, options);
+    
+    // Create and send the embed
+    const embed = createRollEmbed(result, interaction.user.username);
+    
+    // Create buttons
+    const buttons: ButtonBuilder[] = [];
+    
+    // Always include reroll button
+    const rerollButton = new ButtonBuilder()
+      .setCustomId(`roll:${expressionInput}`)
+      .setEmoji('🔄')
+      .setLabel('Reroll')
+      .setStyle(ButtonStyle.Secondary);
+    buttons.push(rerollButton);
+    
+    // Add probability button if TN exists
+    if (options.targetNumber !== undefined) {
+      const probButton = new ButtonBuilder()
+        .setCustomId(`prob:${expressionInput}`)
+        .setEmoji('📊')
+        .setLabel('Stats')
+        .setStyle(ButtonStyle.Primary);
+      buttons.push(probButton);
+    }
+
+    const row = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(...buttons);
+
+    await interaction.reply({ 
+      embeds: [embed],
+      components: [row]
+    });
+    
+    console.log(
+      `🎲 ${interaction.user.tag} rolled via button: ${expressionInput} ` +
+      `in ${interaction.guild?.name || 'DM'}`
+    );
+  } catch (error) {
+    // Handle parsing or execution errors
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const embed = createErrorEmbed(errorMessage);
+    await interaction.reply({ embeds: [embed], flags: 1 << 6 }); // Ephemeral
+    
+    console.error(`❌ Error executing button roll:`, error);
+  }
+}
+
+/**
+ * Handle probability button
+ */
+async function handleProbButton(interaction: ButtonInteraction): Promise<void> {
+  const expressionInput = interaction.customId.substring(5); // Remove "prob:" prefix
+
+  try {
+    // Parse expression and options
+    const { expression: parsed, options } = parseRollExpression(expressionInput);
+
+    // Validate TN is provided
+    if (options.targetNumber === undefined) {
+      await interaction.reply({
+        content: '❌ Target Number (tn:N) is required for probability calculations.',
+        flags: 1 << 6 // Ephemeral
+      });
+      return;
+    }
+
+    // Apply Ten Dice Rule
+    const { applyTenDiceRule, queryProbability, ExplosionMode } = await import('@butterfly-lady/core');
+    const tenDiceResult = applyTenDiceRule(parsed.roll, parsed.keep);
+    const roll = tenDiceResult.roll;
+    const keep = tenDiceResult.keep;
+    const modifier = parsed.modifier + tenDiceResult.bonus;
+
+    // Calculate effective TN including raises
+    const effectiveTN = options.targetNumber + (options.calledRaises || 0) * 5;
+
+    // Query probability tables
+    const result = queryProbability({
+      roll,
+      keep,
+      explosionMode: options.explosionMode || ExplosionMode.Skilled,
+      emphasis: options.emphasisThreshold !== undefined,
+      targetNumber: effectiveTN,
+      modifier
+    });
+
+    // Create embed
+    const { createProbabilityEmbed } = await import('./formatters/probabilityEmbed.js');
+    const embed = createProbabilityEmbed(
+      { roll, keep, modifier },
+      result,
+      {
+        explosionMode: options.explosionMode || ExplosionMode.Skilled,
+        targetNumber: options.targetNumber,
+        calledRaises: options.calledRaises,
+        emphasisThreshold: options.emphasisThreshold
+      }
+    );
+
+    // Add Ten Dice Rule notice if applied
+    if (tenDiceResult.applied) {
+      embed.setDescription(
+        `⚙️ Ten Dice Rule: ${tenDiceResult.original!.roll}k${tenDiceResult.original!.keep} → ` +
+        `${roll}k${keep}${tenDiceResult.bonus > 0 ? `+${tenDiceResult.bonus}` : ''}`
+      );
+    }
+
+    // Create button to execute the roll
+    const rollButton = new ButtonBuilder()
+      .setCustomId(`roll:${expressionInput}`)
+      .setEmoji('🎲')
+      .setLabel('Roll')
+      .setStyle(ButtonStyle.Primary);
+
+    const row = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(rollButton);
+
+    await interaction.reply({ 
+      embeds: [embed],
+      components: [row]
+    });
+
+    console.log(
+      `📊 ${interaction.user.tag} viewed probability via button: ${expressionInput} ` +
+      `in ${interaction.guild?.name || 'DM'}`
+    );
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to calculate probabilities';
+    console.error('Error in prob button:', error);
+    await interaction.reply({
+      content: `❌ ${errorMessage}`,
+      flags: 1 << 6 // Ephemeral
+    });
+  }
 }
 
 /**

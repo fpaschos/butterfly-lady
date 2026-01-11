@@ -13,6 +13,7 @@ export const helpCommand: Command = {
         .setRequired(false)
         .addChoices(
           { name: 'roll', value: 'roll' },
+          { name: 'prob', value: 'prob' },
           { name: 'help', value: 'help' }
         )
     ),
@@ -35,7 +36,8 @@ export const helpCommand: Command = {
     usage: '/help [command]',
     examples: [
       '/help - Show all available commands',
-      '/help roll - Show detailed help for the roll command'
+      '/help roll - Show detailed help for the roll command',
+      '/help prob - Show detailed help for the probability command'
     ],
     category: 'utility'
   }
@@ -92,14 +94,18 @@ async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promis
           '• Raises: `/roll 7k4 tn:20 r:2`\n' +
           '• Emphasis: `/roll 6k3 e` (reroll 1s, e=e:1)\n' +
           '• Emphasis custom: `/roll 6k3 e:2` (reroll ≤2)\n' +
-          '• Combined: `/roll 8k5 m e:2 tn:25 r:1`',
+          '• Combined: `/roll 8k5 m e:2 tn:25 r:1`\n\n' +
+          '`/prob <expr> tn:<N> [flags]`\n' +
+          '• Check success odds: `/prob 5k3 tn:25`\n' +
+          '• With modes: `/prob 7k4 m e tn:30`',
         inline: false
       },
       {
         name: '📖 Utility Commands',
         value: 
           '`/help` - Show this help message\n' +
-          '`/help roll` - Detailed roll command help',
+          '`/help roll` - Detailed roll command help\n' +
+          '`/help prob` - Detailed probability command help',
         inline: false
       },
       {
@@ -137,7 +143,7 @@ async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promis
         inline: false
       }
     )
-    .setFooter({ text: 'For detailed command help, use /help roll' })
+    .setFooter({ text: 'For detailed command help, use /help <command>' })
     .setTimestamp();
   
   await interaction.reply({ embeds: [embed] });
@@ -184,6 +190,32 @@ function getCommandHelpData(commandName: string) {
         '/roll 12k5 m tn:30 - Ten Dice Rule applies (→10k6)'
       ]
     },
+    prob: {
+      name: 'prob',
+      description:
+        '**Probability & Statistics (L5R 4e)**\n\n' +
+        'Show probability statistics for an L5R roll before you make it.\n' +
+        'Uses precomputed Monte Carlo simulations (330 roll combinations).\n\n' +
+        '**What You Get:**\n' +
+        '• Success rate vs Target Number\n' +
+        '• Average result (mean)\n' +
+        '• Typical roll (median)\n' +
+        '• Common range (25th-75th percentiles)\n' +
+        '• Possible range (min-max)\n\n' +
+        '**Same syntax as /roll, but TN is required:**\n' +
+        '• Same explosion modes (u, m)\n' +
+        '• Same emphasis (e, e:N)\n' +
+        '• Same raises (r:N)\n' +
+        '• Ten Dice Rule applies',
+      usage: '/prob <expression> tn:<N> [flags]',
+      examples: [
+        '/prob 5k3 tn:25 - Check success odds (skilled)',
+        '/prob 5k3 u tn:20 - Unskilled probability',
+        '/prob 7k4 m e tn:30 - Mastery + emphasis',
+        '/prob 8k5+10 tn:35 r:2 - With modifier and raises',
+        '/prob 12k4 tn:30 - Ten Dice Rule applies'
+      ]
+    },
     help: {
       name: 'help',
       description:
@@ -193,7 +225,8 @@ function getCommandHelpData(commandName: string) {
       usage: '/help [command]',
       examples: [
         '/help - Show all commands',
-        '/help roll - Detailed help for roll command'
+        '/help roll - Detailed help for roll command',
+        '/help prob - Detailed help for probability command'
       ]
     }
   };
