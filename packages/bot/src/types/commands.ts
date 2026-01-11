@@ -1,23 +1,23 @@
-import { 
-  SlashCommandBuilder, 
+import {
   ChatInputCommandInteraction,
-  SlashCommandOptionsOnlyBuilder 
-} from 'discord.js';
+  SlashCommandBuilder,
+  SlashCommandOptionsOnlyBuilder
+} from 'discord.js'
 
 /**
  * Metadata for a bot command
  */
 export interface CommandMetadata {
   /** Name of the command */
-  name: string;
+  name: string
   /** Short description */
-  description: string;
+  description: string
   /** Detailed usage information */
-  usage: string;
+  usage: string
   /** Example commands */
-  examples: string[];
+  examples: string[]
   /** Category for organization */
-  category: 'dice' | 'utility' | 'character';
+  category: 'dice' | 'utility' | 'character'
 }
 
 /**
@@ -25,9 +25,9 @@ export interface CommandMetadata {
  */
 export interface Command {
   /** Discord slash command builder */
-  data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder;
+  data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder
   /** Command execution handler */
-  execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+  execute: (interaction: ChatInputCommandInteraction) => Promise<void>
   /** Metadata for help system */
-  metadata: CommandMetadata;
+  metadata: CommandMetadata
 }

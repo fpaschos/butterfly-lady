@@ -1,6 +1,6 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { Command } from '../types/commands.js';
-import { createCommandHelpEmbed } from '../formatters/rollEmbed.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import { createCommandHelpEmbed } from '../formatters/rollEmbed.js'
+import { Command } from '../types/commands.js'
 
 export const helpCommand: Command = {
   data: new SlashCommandBuilder()
@@ -17,19 +17,19 @@ export const helpCommand: Command = {
           { name: 'help', value: 'help' }
         )
     ),
-  
+
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    const commandName = interaction.options.getString('command');
-    
+    const commandName = interaction.options.getString('command')
+
     if (commandName) {
       // Show detailed help for specific command
-      await showCommandHelp(interaction, commandName);
+      await showCommandHelp(interaction, commandName)
     } else {
       // Show general help with all commands
-      await showGeneralHelp(interaction);
+      await showGeneralHelp(interaction)
     }
   },
-  
+
   metadata: {
     name: 'help',
     description: 'Display bot commands and usage instructions',
@@ -41,7 +41,7 @@ export const helpCommand: Command = {
     ],
     category: 'utility'
   }
-};
+}
 
 /**
  * Show detailed help for a specific command
@@ -50,24 +50,24 @@ async function showCommandHelp(
   interaction: ChatInputCommandInteraction,
   commandName: string
 ): Promise<void> {
-  const helpData = getCommandHelpData(commandName);
-  
+  const helpData = getCommandHelpData(commandName)
+
   if (!helpData) {
     await interaction.reply({
       content: `❌ No help available for command: ${commandName}`,
       flags: 1 << 6 // MessageFlags.Ephemeral
-    });
-    return;
+    })
+    return
   }
-  
+
   const embed = createCommandHelpEmbed(
     helpData.name,
     helpData.description,
     helpData.usage,
     helpData.examples
-  );
-  
-  await interaction.reply({ embeds: [embed] });
+  )
+
+  await interaction.reply({ embeds: [embed] })
 }
 
 /**
@@ -75,17 +75,17 @@ async function showCommandHelp(
  */
 async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promise<void> {
   const embed = new EmbedBuilder()
-    .setColor(0x8B0000)
+    .setColor(0x8b0000)
     .setTitle('🦋 Butterfly Lady - L5R 4th Edition Bot')
     .setDescription(
       'A helpful bot for Legend of the Five Rings 4th Edition RPG.\n\n' +
-      '**The Way of the Samurai**\n' +
-      'Advanced Roll & Keep system with mastery, emphasis, raises, and more!'
+        '**The Way of the Samurai**\n' +
+        'Advanced Roll & Keep system with mastery, emphasis, raises, and more!'
     )
     .addFields(
       {
         name: '🎲 Dice Rolling',
-        value: 
+        value:
           '`/roll <expr> [flags] [options]`\n' +
           '• Basic: `/roll 5k3` (10s explode)\n' +
           '• Unskilled: `/roll 5k3 u` (no explosions)\n' +
@@ -102,7 +102,7 @@ async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promis
       },
       {
         name: '📖 Utility Commands',
-        value: 
+        value:
           '`/help` - Show this help message\n' +
           '`/help roll` - Detailed roll command help\n' +
           '`/help prob` - Detailed probability command help',
@@ -144,24 +144,27 @@ async function showGeneralHelp(interaction: ChatInputCommandInteraction): Promis
       }
     )
     .setFooter({ text: 'For detailed command help, use /help <command>' })
-    .setTimestamp();
-  
-  await interaction.reply({ embeds: [embed] });
+    .setTimestamp()
+
+  await interaction.reply({ embeds: [embed] })
 }
 
 /**
  * Get help data for a specific command
  */
 function getCommandHelpData(commandName: string) {
-  const helpData: Record<string, {
-    name: string;
-    description: string;
-    usage: string;
-    examples: string[];
-  }> = {
+  const helpData: Record<
+    string,
+    {
+      name: string
+      description: string
+      usage: string
+      examples: string[]
+    }
+  > = {
     roll: {
       name: 'roll',
-      description: 
+      description:
         '**Roll & Keep Dice System (L5R 4e)**\n\n' +
         'Roll multiple d10s and keep the highest results.\n\n' +
         '**Explosion Modes:**\n' +
@@ -229,7 +232,7 @@ function getCommandHelpData(commandName: string) {
         '/help prob - Detailed help for probability command'
       ]
     }
-  };
-  
-  return helpData[commandName];
+  }
+
+  return helpData[commandName]
 }

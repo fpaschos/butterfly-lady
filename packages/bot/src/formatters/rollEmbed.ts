@@ -1,137 +1,142 @@
-import { EmbedBuilder } from 'discord.js';
-import { 
-  RollResult, 
-  ExplosionMode, 
+import { EmbedBuilder } from 'discord.js'
+import {
+  applyTenDiceRule,
+  ExplosionMode,
   formatDieResult,
   queryProbability,
-  applyTenDiceRule
-} from '@butterfly-lady/core';
+  RollResult
+} from '@butterfly-lady/core'
 
 /**
  * Create a Discord embed for a roll result with Phase 2 features
  */
 export function createRollEmbed(result: RollResult, username: string): EmbedBuilder {
-  const { options } = result;
-  
+  const { options } = result
+
   // Determine color based on success/failure or explosion mode
-  let color = 0x8B0000; // Dark red (default L5R)
-  if (result.success === true) color = 0x00AA00; // Green for success
-  else if (result.success === false) color = 0xAA0000; // Bright red for failure
-  else if (options.explosionMode === ExplosionMode.Mastery) color = 0xFFD700; // Gold for mastery
-  
+  let color = 0x8b0000 // Dark red (default L5R)
+  if (result.success === true)
+    color = 0x00aa00 // Green for success
+  else if (result.success === false)
+    color = 0xaa0000 // Bright red for failure
+  else if (options.explosionMode === ExplosionMode.Mastery) color = 0xffd700 // Gold for mastery
+
   // Build title
-  const modeEmoji = getModeEmoji(options.explosionMode);
-  const title = `${modeEmoji} Roll & Keep`;
-  
+  const modeEmoji = getModeEmoji(options.explosionMode)
+  const title = `${modeEmoji} Roll & Keep`
+
   // Build description with expression
-  let expressionStr = buildExpressionString(result);
-  let description = `${username} rolled **${expressionStr}**`;
-  
+  const expressionStr = buildExpressionString(result)
+  let description = `${username} rolled **${expressionStr}**`
+
   // Add Ten Dice Rule note if applied
   if (result.tenDiceRuleApplied) {
-    const { original, converted } = result.tenDiceRuleApplied;
-    description += `\n📏 Ten Dice Rule: ${original.roll}k${original.keep} → ${converted.roll}k${converted.keep}`;
-    if (converted.bonus > 0) description += `+${converted.bonus}`;
+    const { original, converted } = result.tenDiceRuleApplied
+    description += `\n📏 Ten Dice Rule: ${original.roll}k${original.keep} → ${converted.roll}k${converted.keep}`
+    if (converted.bonus > 0) description += `+${converted.bonus}`
   }
-  
+
   const embed = new EmbedBuilder()
     .setColor(color)
     .setTitle(title)
     .setDescription(description)
-    .setTimestamp();
-  
+    .setTimestamp()
+
   // Always show detailed view
-  addDetailedFields(embed, result);
-  
+  addDetailedFields(embed, result)
+
   // Add footer with context info
-  const footer = buildFooter(result);
+  const footer = buildFooter(result)
   if (footer) {
-    embed.setFooter({ text: footer });
+    embed.setFooter({ text: footer })
   }
-  
-  return embed;
+
+  return embed
 }
 
 /**
  * Add detailed fields to embed
  */
 function addDetailedFields(embed: EmbedBuilder, result: RollResult): void {
-  const { allDice, keptIndices, subtotal, total, expression, options } = result;
-  
+  const { allDice, keptIndices, subtotal, total, expression, options } = result
+
   // Dice breakdown
-  const diceDisplay = allDice.map((die, index) => {
-    const dieStr = formatDieResult(die);
-    const isKept = keptIndices.includes(index);
-    return isKept ? `**${dieStr}**` : dieStr;
-  }).join(', ');
-  
+  const diceDisplay = allDice
+    .map((die, index) => {
+      const dieStr = formatDieResult(die)
+      const isKept = keptIndices.includes(index)
+      return isKept ? `**${dieStr}**` : dieStr
+    })
+    .join(', ')
+
   embed.addFields({
     name: 'All Dice (kept dice in bold)',
     value: diceDisplay,
     inline: false
-  });
-  
+  })
+
   // Emphasis rerolls
   if (result.emphasisRerolls && result.emphasisRerolls.length > 0) {
     const rerollsText = result.emphasisRerolls
       .map(r => `Die ${r.diceIndex + 1}: ${r.oldValue} → ${r.newValue}`)
-      .join('\n');
+      .join('\n')
     embed.addFields({
       name: `Emphasis Rerolls (≤${options.emphasisThreshold})`,
       value: rerollsText,
       inline: false
-    });
+    })
   }
-  
+
   // Calculation breakdown
-  let calcText = `Kept dice: ${keptIndices.map(i => allDice[i].value).join(' + ')} = ${subtotal}`;
+  let calcText = `Kept dice: ${keptIndices.map(i => allDice[i].value).join(' + ')} = ${subtotal}`
   if (expression.modifier !== 0) {
-    const modStr = expression.modifier > 0 ? `+${expression.modifier}` : `${expression.modifier}`;
-    calcText += `\nModifier: ${modStr}\n**Total: ${total}**`;
+    const modStr = expression.modifier > 0 ? `+${expression.modifier}` : `${expression.modifier}`
+    calcText += `\nModifier: ${modStr}\n**Total: ${total}**`
   } else {
-    calcText += `\n**Total: ${total}**`;
+    calcText += `\n**Total: ${total}**`
   }
-  
+
   embed.addFields({
     name: 'Calculation',
     value: calcText,
     inline: false
-  });
-  
+  })
+
   // TN and Raises breakdown
   if (result.success !== undefined && options.targetNumber) {
-    const icon = result.success ? '✅' : '❌';
-    const status = result.success ? 'SUCCESS' : 'FAILED';
-    
-    let tnText = `${icon} **${status}**\n`;
-    tnText += `Base TN: ${options.targetNumber}`;
-    
+    const icon = result.success ? '✅' : '❌'
+    const status = result.success ? 'SUCCESS' : 'FAILED'
+
+    let tnText = `${icon} **${status}**\n`
+    tnText += `Base TN: ${options.targetNumber}`
+
     if (options.calledRaises && options.calledRaises > 0) {
-      const effectiveTN = options.targetNumber + (options.calledRaises * 5);
-      tnText += `\nCalled Raises: ${options.calledRaises} (+${options.calledRaises * 5})`;
-      tnText += `\n**Effective TN: ${effectiveTN}**`;
+      const effectiveTN = options.targetNumber + options.calledRaises * 5
+      tnText += `\nCalled Raises: ${options.calledRaises} (+${options.calledRaises * 5})`
+      tnText += `\n**Effective TN: ${effectiveTN}**`
     }
-    
-    tnText += `\nRoll: ${total}`;
-    
+
+    tnText += `\nRoll: ${total}`
+
     if (result.marginOfSuccess !== undefined) {
-      const margin = result.marginOfSuccess >= 0 ? `+${result.marginOfSuccess}` : `${result.marginOfSuccess}`;
-      tnText += `\nMargin: ${margin}`;
+      const margin =
+        result.marginOfSuccess >= 0 ? `+${result.marginOfSuccess}` : `${result.marginOfSuccess}`
+      tnText += `\nMargin: ${margin}`
     }
-    
+
     if (result.achievedRaises !== undefined) {
-      tnText += `\n**Raises Achieved: ${result.achievedRaises}**`;
+      tnText += `\n**Raises Achieved: ${result.achievedRaises}**`
       if (options.calledRaises && result.achievedRaises > options.calledRaises) {
-        const bonus = result.achievedRaises - options.calledRaises;
-        tnText += ` (${options.calledRaises} called + ${bonus} bonus)`;
+        const bonus = result.achievedRaises - options.calledRaises
+        tnText += ` (${options.calledRaises} called + ${bonus} bonus)`
       }
     }
-    
+
     embed.addFields({
       name: 'Target Number Check',
       value: tnText,
       inline: false
-    });
+    })
   }
 }
 
@@ -139,39 +144,39 @@ function addDetailedFields(embed: EmbedBuilder, result: RollResult): void {
  * Build expression string
  */
 function buildExpressionString(result: RollResult): string {
-  const { expression, tenDiceRuleApplied } = result;
-  
+  const { expression, tenDiceRuleApplied } = result
+
   // Use original values if Ten Dice Rule was applied
-  const roll = tenDiceRuleApplied?.original.roll ?? expression.roll;
-  const keep = tenDiceRuleApplied?.original.keep ?? expression.keep;
-  let modifier = expression.modifier;
-  
-  let expr = `${roll}k${keep}`;
-  if (modifier > 0) expr += `+${modifier}`;
-  if (modifier < 0) expr += `${modifier}`;
-  
-  return expr;
+  const roll = tenDiceRuleApplied?.original.roll ?? expression.roll
+  const keep = tenDiceRuleApplied?.original.keep ?? expression.keep
+  const modifier = expression.modifier
+
+  let expr = `${roll}k${keep}`
+  if (modifier > 0) expr += `+${modifier}`
+  if (modifier < 0) expr += `${modifier}`
+
+  return expr
 }
 
 /**
  * Build footer text
  */
 function buildFooter(result: RollResult): string | null {
-  const probabilityParts: string[] = [];
-  const diceSummaryParts: string[] = [];
-  
+  const probabilityParts: string[] = []
+  const diceSummaryParts: string[] = []
+
   // Probability info (only if TN exists)
   if (result.options.targetNumber !== undefined) {
     try {
       // Apply Ten Dice Rule to get the actual roll/keep used
-      const tenDiceResult = applyTenDiceRule(result.expression.roll, result.expression.keep);
-      const roll = tenDiceResult.roll;
-      const keep = tenDiceResult.keep;
-      const modifier = result.expression.modifier + tenDiceResult.bonus;
-      
+      const tenDiceResult = applyTenDiceRule(result.expression.roll, result.expression.keep)
+      const roll = tenDiceResult.roll
+      const keep = tenDiceResult.keep
+      const modifier = result.expression.modifier + tenDiceResult.bonus
+
       // Calculate effective TN including raises
-      const effectiveTN = result.options.targetNumber + (result.options.calledRaises || 0) * 5;
-      
+      const effectiveTN = result.options.targetNumber + (result.options.calledRaises || 0) * 5
+
       // Query probability tables
       const probResult = queryProbability({
         roll,
@@ -180,53 +185,59 @@ function buildFooter(result: RollResult): string | null {
         emphasis: result.options.emphasisThreshold !== undefined,
         targetNumber: effectiveTN,
         modifier
-      });
-      
+      })
+
       // Format: 📊 Success: 65.3% • Avg: 28.5 (σ 8.2)
-      const successPct = (probResult.successRate * 100).toFixed(1);
-      const avg = probResult.table.statistics.mean.toFixed(1);
-      const sigma = probResult.table.statistics.stddev.toFixed(1);
-      
-      probabilityParts.push(`📊 Success: ${successPct}% • Avg: ${avg} (σ ${sigma})`);
+      const successPct = (probResult.successRate * 100).toFixed(1)
+      const avg = probResult.table.statistics.mean.toFixed(1)
+      const sigma = probResult.table.statistics.stddev.toFixed(1)
+
+      probabilityParts.push(`📊 Success: ${successPct}% • Avg: ${avg} (σ ${sigma})`)
     } catch (error) {
       // Silently ignore probability errors (e.g., if tables not loaded)
-      console.warn('Could not calculate probability for roll:', error);
+      console.warn('Could not calculate probability for roll:', error)
     }
   }
-  
+
   // Explosion mode info
   if (result.options.explosionMode === ExplosionMode.Unskilled) {
-    diceSummaryParts.push('⚪ Unskilled (no explosions)');
+    diceSummaryParts.push('⚪ Unskilled (no explosions)')
   } else if (result.options.explosionMode === ExplosionMode.Mastery) {
-    const explosionCount = result.allDice.filter(die => die.exploded).length;
+    const explosionCount = result.allDice.filter(die => die.exploded).length
     if (explosionCount > 0) {
-      diceSummaryParts.push(`✨ Mastery: ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (9s and 10s)`);
+      diceSummaryParts.push(
+        `✨ Mastery: ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (9s and 10s)`
+      )
     } else {
-      diceSummaryParts.push('✨ Mastery mode (9s and 10s explode)');
+      diceSummaryParts.push('✨ Mastery mode (9s and 10s explode)')
     }
   } else {
     // Skilled mode
-    const explosionCount = result.allDice.filter(die => die.exploded).length;
+    const explosionCount = result.allDice.filter(die => die.exploded).length
     if (explosionCount > 0) {
-      diceSummaryParts.push(`💥 ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (10s)`);
+      diceSummaryParts.push(
+        `💥 ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (10s)`
+      )
     }
   }
-  
+
   // Emphasis reroll info
   if (result.emphasisRerolls && result.emphasisRerolls.length > 0) {
-    diceSummaryParts.push(`🔄 Emphasis: ${result.emphasisRerolls.length} ${result.emphasisRerolls.length === 1 ? 'die' : 'dice'} rerolled (≤${result.options.emphasisThreshold})`);
+    diceSummaryParts.push(
+      `🔄 Emphasis: ${result.emphasisRerolls.length} ${result.emphasisRerolls.length === 1 ? 'die' : 'dice'} rerolled (≤${result.options.emphasisThreshold})`
+    )
   }
-  
+
   // Combine parts with newline separator between probability and dice summary
-  const allParts: string[] = [];
+  const allParts: string[] = []
   if (probabilityParts.length > 0) {
-    allParts.push(probabilityParts.join(' • '));
+    allParts.push(probabilityParts.join(' • '))
   }
   if (diceSummaryParts.length > 0) {
-    allParts.push(diceSummaryParts.join(' • '));
+    allParts.push(diceSummaryParts.join(' • '))
   }
-  
-  return allParts.length > 0 ? allParts.join('\n') : null;
+
+  return allParts.length > 0 ? allParts.join('\n') : null
 }
 
 /**
@@ -235,12 +246,12 @@ function buildFooter(result: RollResult): string | null {
 function getModeEmoji(mode: ExplosionMode): string {
   switch (mode) {
     case ExplosionMode.Unskilled:
-      return '⚪';
+      return '⚪'
     case ExplosionMode.Mastery:
-      return '✨';
+      return '✨'
     case ExplosionMode.Skilled:
     default:
-      return '🎲';
+      return '🎲'
   }
 }
 
@@ -249,10 +260,10 @@ function getModeEmoji(mode: ExplosionMode): string {
  */
 export function createErrorEmbed(error: string): EmbedBuilder {
   return new EmbedBuilder()
-    .setColor(0xFF0000)
+    .setColor(0xff0000)
     .setTitle('❌ Invalid Roll')
     .setDescription(error)
-    .setTimestamp();
+    .setTimestamp()
 }
 
 /**
@@ -265,7 +276,7 @@ export function createCommandHelpEmbed(
   examples: string[]
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
-    .setColor(0x4169E1) // Royal blue
+    .setColor(0x4169e1) // Royal blue
     .setTitle(`📖 Command: /${name}`)
     .setDescription(description)
     .addFields(
@@ -280,7 +291,7 @@ export function createCommandHelpEmbed(
         inline: false
       }
     )
-    .setTimestamp();
-  
-  return embed;
+    .setTimestamp()
+
+  return embed
 }

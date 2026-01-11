@@ -3,17 +3,17 @@
  */
 export interface ProbabilityTable {
   /** Number of dice to roll */
-  roll: number;
+  roll: number
   /** Number of dice to keep */
-  keep: number;
+  keep: number
   /** Explosion mode used for this table */
-  explosion_mode: 'unskilled' | 'skilled' | 'mastery';
+  explosion_mode: 'unskilled' | 'skilled' | 'mastery'
   /** Whether emphasis was applied */
-  emphasis: boolean;
+  emphasis: boolean
   /** Statistical measures for this roll configuration */
-  statistics: Statistics;
+  statistics: Statistics
   /** Cumulative probability P(total >= TN) for each TN value */
-  cumulative_probability: Record<string, number>;
+  cumulative_probability: Record<string, number>
 }
 
 /**
@@ -21,19 +21,19 @@ export interface ProbabilityTable {
  */
 export interface Statistics {
   /** Mean (average) value */
-  mean: number;
+  mean: number
   /** Standard deviation */
-  stddev: number;
+  stddev: number
   /** Median (50th percentile) */
-  median: number;
+  median: number
   /** 25th percentile */
-  percentile_25: number;
+  percentile_25: number
   /** 75th percentile */
-  percentile_75: number;
+  percentile_75: number
   /** Minimum possible value */
-  min: number;
+  min: number
   /** Maximum observed value */
-  max: number;
+  max: number
 }
 
 /**
@@ -41,17 +41,17 @@ export interface Statistics {
  */
 export interface ProbabilityTables {
   /** Version of the table format */
-  version: string;
+  version: string
   /** Timestamp when tables were generated */
-  generated_at: string;
+  generated_at: string
   /** Number of simulation rounds per mode */
   simulation_rounds: {
-    unskilled: number;
-    skilled: number;
-    mastery: number;
-  };
+    unskilled: number
+    skilled: number
+    mastery: number
+  }
   /** Probability cutoff threshold used */
-  probability_cutoff: number;
+  probability_cutoff: number
   /** Array of all probability tables */
-  tables: ProbabilityTable[];
+  tables: ProbabilityTable[]
 }

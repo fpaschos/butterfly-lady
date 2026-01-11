@@ -16,6 +16,9 @@ npm-debug.log*
 pnpm-debug.log*
 logs/
 
+# Linting reports
+eslint-report.html
+
 # OS files
 .DS_Store
 Thumbs.db

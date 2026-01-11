@@ -22,4 +22,3 @@ services:
 networks:
   butterfly-network:
     driver: bridge
-

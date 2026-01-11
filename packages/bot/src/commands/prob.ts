@@ -1,18 +1,18 @@
-import { 
-  SlashCommandBuilder, 
-  ChatInputCommandInteraction,
+import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle
-} from 'discord.js';
-import { 
-  parseRollExpression,
-  ExplosionMode, 
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  SlashCommandBuilder
+} from 'discord.js'
+import {
   applyTenDiceRule,
+  ExplosionMode,
+  parseRollExpression,
   queryProbability
-} from '@butterfly-lady/core';
-import { Command } from '../types/commands.js';
-import { createProbabilityEmbed } from '../formatters/probabilityEmbed.js';
+} from '@butterfly-lady/core'
+import { createProbabilityEmbed } from '../formatters/probabilityEmbed.js'
+import { Command } from '../types/commands.js'
 
 export const probCommand: Command = {
   data: new SlashCommandBuilder()
@@ -26,29 +26,30 @@ export const probCommand: Command = {
     ),
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    const expressionInput = interaction.options.getString('expression', true);
+    const expressionInput = interaction.options.getString('expression', true)
 
     try {
       // Parse expression and options (same as roll command)
-      const { expression: parsed, options } = parseRollExpression(expressionInput);
+      const { expression: parsed, options } = parseRollExpression(expressionInput)
 
       // Validate TN is provided
       if (options.targetNumber === undefined) {
         await interaction.reply({
-          content: '❌ Target Number (tn:N) is required for probability calculations.\nExample: `/prob 5k3 tn:25`',
+          content:
+            '❌ Target Number (tn:N) is required for probability calculations.\nExample: `/prob 5k3 tn:25`',
           flags: 1 << 6 // MessageFlags.Ephemeral
-        });
-        return;
+        })
+        return
       }
 
       // Apply Ten Dice Rule
-      const tenDiceResult = applyTenDiceRule(parsed.roll, parsed.keep);
-      const roll = tenDiceResult.roll;
-      const keep = tenDiceResult.keep;
-      const modifier = parsed.modifier + tenDiceResult.bonus;
+      const tenDiceResult = applyTenDiceRule(parsed.roll, parsed.keep)
+      const roll = tenDiceResult.roll
+      const keep = tenDiceResult.keep
+      const modifier = parsed.modifier + tenDiceResult.bonus
 
       // Calculate effective TN including raises
-      const effectiveTN = options.targetNumber + (options.calledRaises || 0) * 5;
+      const effectiveTN = options.targetNumber + (options.calledRaises || 0) * 5
 
       // Query probability tables
       const result = queryProbability({
@@ -58,26 +59,22 @@ export const probCommand: Command = {
         emphasis: options.emphasisThreshold !== undefined,
         targetNumber: effectiveTN,
         modifier
-      });
+      })
 
       // Create embed
-      const embed = createProbabilityEmbed(
-        { roll, keep, modifier },
-        result,
-        {
-          explosionMode: options.explosionMode || ExplosionMode.Skilled,
-          targetNumber: options.targetNumber,
-          calledRaises: options.calledRaises,
-          emphasisThreshold: options.emphasisThreshold
-        }
-      );
+      const embed = createProbabilityEmbed({ roll, keep, modifier }, result, {
+        explosionMode: options.explosionMode || ExplosionMode.Skilled,
+        targetNumber: options.targetNumber,
+        calledRaises: options.calledRaises,
+        emphasisThreshold: options.emphasisThreshold
+      })
 
       // Add Ten Dice Rule notice if applied
       if (tenDiceResult.applied) {
         embed.setDescription(
           `⚙️ Ten Dice Rule: ${tenDiceResult.original!.roll}k${tenDiceResult.original!.keep} → ` +
-          `${roll}k${keep}${tenDiceResult.bonus > 0 ? `+${tenDiceResult.bonus}` : ''}`
-        );
+            `${roll}k${keep}${tenDiceResult.bonus > 0 ? `+${tenDiceResult.bonus}` : ''}`
+        )
       }
 
       // Create button to execute the roll
@@ -85,23 +82,22 @@ export const probCommand: Command = {
         .setCustomId(`roll:${expressionInput}`)
         .setEmoji('🎲')
         .setLabel('Roll')
-        .setStyle(ButtonStyle.Primary);
+        .setStyle(ButtonStyle.Primary)
 
-      const row = new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(rollButton);
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(rollButton)
 
-      await interaction.reply({ 
+      await interaction.reply({
         embeds: [embed],
         components: [row]
-      });
-
+      })
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to calculate probabilities';
-      console.error('Error in prob command:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to calculate probabilities'
+      console.error('Error in prob command:', error)
       await interaction.reply({
         content: `❌ ${errorMessage}`,
         flags: 1 << 6 // MessageFlags.Ephemeral
-      });
+      })
     }
   },
 
@@ -118,4 +114,4 @@ export const probCommand: Command = {
       '/prob 12k4 tn:30 - Ten Dice Rule auto-applies'
     ]
   }
-};
+}

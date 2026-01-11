@@ -7,9 +7,18 @@
   "scripts": {
     "dev": "pnpm --filter @butterfly-lady/backend dev",
     "build": "pnpm -r build",
+    "build:prod": "pnpm run validate && pnpm run build",
     "start": "pnpm --filter @butterfly-lady/backend start",
     "lint": "pnpm -r lint",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "typecheck": "pnpm run build && pnpm -r typecheck",
+    "eslint": "eslint 'packages/**/*.{ts,js}'",
+    "eslint:fix": "eslint 'packages/**/*.{ts,js}' --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "validate": "pnpm run format:check && pnpm run eslint",
+    "validate:full": "pnpm run validate && pnpm run typecheck",
+    "fix": "pnpm run format && pnpm run eslint:fix"
   },
   "keywords": [
     "discord",
@@ -21,8 +30,16 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@types/node": "20.11.5",
-    "typescript": "5.3.3"
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "globals": "^16.1.0",
+    "prettier": "^3.5.3",
+    "typescript": "5.3.3",
+    "typescript-eslint": "^8.32.1"
   },
   "engines": {
     "node": ">=18.0.0",

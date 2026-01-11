@@ -2,9 +2,9 @@
  * Explosion modes for dice rolling
  */
 export enum ExplosionMode {
-  Skilled = 'skilled',     // 10s explode (default L5R behavior)
+  Skilled = 'skilled', // 10s explode (default L5R behavior)
   Unskilled = 'unskilled', // No explosions
-  Mastery = 'mastery'      // 9s and 10s explode
+  Mastery = 'mastery' // 9s and 10s explode
 }
 
 /**
@@ -12,11 +12,11 @@ export enum ExplosionMode {
  */
 export interface DieResult {
   /** The face value of the die (1-10) */
-  value: number;
+  value: number
   /** Individual rolls if the die exploded */
-  rolls: number[];
+  rolls: number[]
   /** Whether this die exploded */
-  exploded: boolean;
+  exploded: boolean
 }
 
 /**
@@ -24,11 +24,11 @@ export interface DieResult {
  */
 export interface RollExpression {
   /** Number of dice to roll */
-  roll: number;
+  roll: number
   /** Number of dice to keep */
-  keep: number;
+  keep: number
   /** Modifier to add/subtract from the total */
-  modifier: number;
+  modifier: number
 }
 
 /**
@@ -36,13 +36,13 @@ export interface RollExpression {
  */
 export interface RollOptions {
   /** Explosion mode (default: skilled) */
-  explosionMode: ExplosionMode;
+  explosionMode: ExplosionMode
   /** Target Number to beat */
-  targetNumber?: number;
+  targetNumber?: number
   /** Number of raises called */
-  calledRaises?: number;
+  calledRaises?: number
   /** Emphasis threshold (reroll dice ≤ this value) */
-  emphasisThreshold?: number;
+  emphasisThreshold?: number
 }
 
 /**
@@ -50,9 +50,9 @@ export interface RollOptions {
  */
 export interface TenDiceRuleConversion {
   /** Original roll/keep values */
-  original: { roll: number; keep: number };
+  original: { roll: number; keep: number }
   /** Converted roll/keep values */
-  converted: { roll: number; keep: number; bonus: number };
+  converted: { roll: number; keep: number; bonus: number }
 }
 
 /**
@@ -60,11 +60,11 @@ export interface TenDiceRuleConversion {
  */
 export interface EmphasisReroll {
   /** Index of the die that was rerolled */
-  diceIndex: number;
+  diceIndex: number
   /** Original value before reroll */
-  oldValue: number;
+  oldValue: number
   /** New value after reroll */
-  newValue: number;
+  newValue: number
 }
 
 /**
@@ -72,25 +72,25 @@ export interface EmphasisReroll {
  */
 export interface RollResult {
   /** The parsed expression */
-  expression: RollExpression;
+  expression: RollExpression
   /** Roll options used */
-  options: RollOptions;
+  options: RollOptions
   /** All dice that were rolled */
-  allDice: DieResult[];
+  allDice: DieResult[]
   /** Indices of dice that were kept (sorted by value, descending) */
-  keptIndices: number[];
+  keptIndices: number[]
   /** Sum of kept dice values */
-  subtotal: number;
+  subtotal: number
   /** Final total including modifier */
-  total: number;
+  total: number
   /** Ten Dice Rule conversion info (if applied) */
-  tenDiceRuleApplied?: TenDiceRuleConversion;
+  tenDiceRuleApplied?: TenDiceRuleConversion
   /** Emphasis rerolls (if any) */
-  emphasisRerolls?: EmphasisReroll[];
+  emphasisRerolls?: EmphasisReroll[]
   /** Success against TN (if TN specified) */
-  success?: boolean;
+  success?: boolean
   /** Total raises achieved (if TN specified) */
-  achievedRaises?: number;
+  achievedRaises?: number
   /** Margin of success/failure (if TN specified) */
-  marginOfSuccess?: number;
+  marginOfSuccess?: number
 }
