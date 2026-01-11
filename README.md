@@ -4,7 +4,7 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
 
 ## Features
 
-### ✅ Phase 1 & 2 (Current)
+### ✅ Phase 1, 2 & 3B (Current)
 - **🎲 Advanced Roll & Keep System** - Full L5R 4th Edition mechanics
   - **Explosion Modes**: Skilled (10s), Unskilled (none), Mastery (9s & 10s)
   - **Ten Dice Rule**: Automatic conversion for rolls >10k10
@@ -13,12 +13,17 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
   - **Emphasis**: Reroll low dice on specialized skills
   - **Modifiers**: Add/subtract bonuses
   - Beautiful Discord embeds with detailed breakdowns
+- **📊 Probability & Statistics** - Monte Carlo simulated probability analysis
+  - **Success Rate**: Calculate odds of beating any TN
+  - **Statistics**: Mean, median, standard deviation, percentiles
+  - **Precomputed Tables**: 330 roll combinations (1k1 to 10k10, all modes)
+  - **Same Syntax**: All `/roll` flags work with `/prob`
+  - **Fast Lookups**: Static JSON import, works in Node.js and browsers
 - **📖 Enhanced Help System** - Interactive help for all commands
 - **🐳 Docker Support** - Easy local deployment with Docker Compose
 - **🎯 Seedrandom RNG** - OS-entropy based randomness with testing support
 
 ### 🔮 Coming Soon
-- **Phase 3B**: Statistics & Probability - Roll simulations and probability analysis
 - **Phase 3C**: Character Management - Store character sheets and quick stats
 - **Phase 4**: Image Generation - AI-generated maps and tokens
 - **Phase 5**: VTT Integration - Virtual tabletop with React + Pixi.js
@@ -132,97 +137,85 @@ Rolls over 10k10 auto-convert:
 - `12k4` → `10k5` (2 extra rolled → 1 kept)
 - `14k12` → `10k10+12` (excess becomes bonuses)
 
+### `/prob <expression> tn:<N> [flags] [options]`
+Show probability statistics for an L5R roll before you make it.
+
+**Format:** Same as `/roll` but **TN is required**
+
+**What You Get:**
+- **Success Rate**: Probability of beating the TN (with difficulty label)
+- **Average**: Mean result (long-term average)
+- **Standard Deviation (σ)**: Measure of roll variability
+- **Typical Roll**: Median (50% of rolls are ≤ this value)
+- **Common Range**: 25th-75th percentiles (middle 50% of results)
+- **Possible Range**: Minimum and maximum values
+
+**Examples:**
+```
+/prob 5k3 tn:25                 Check success odds (skilled)
+/prob 5k3 u tn:20               Unskilled probability
+/prob 7k4 m e tn:30             Mastery + emphasis
+/prob 8k5+10 tn:35 r:2          With modifier and raises
+/prob 12k4 tn:30                Ten Dice Rule applies
+```
+
+**How It Works:**
+- Uses precomputed Monte Carlo simulations (200k-500k rolls per configuration)
+- Covers all 330 combinations: 1k1 to 10k10, all modes (unskilled/skilled/mastery), with/without emphasis
+- Fast lookups from static JSON tables (~200KB)
+- Same explosion modes, emphasis, and raise rules as `/roll`
+
 ### `/help [command]`
 Get help with bot commands.
 
 **Examples:**
 ```
-/help              Show all commands with Phase 2 features
+/help              Show all commands
 /help roll         Detailed help for roll command
+/help prob         Detailed help for probability command
 ```
 
-**Key Changes:**
-- Emphasis `e` defaults to `e:1` (reroll 1s)
-- All rolls show detailed breakdown
-- Removed skill names (not needed)
+**Key Features:**
+- Interactive command selection
+- Detailed usage examples
+- All Phase 3B features included
 
 ## Project Structure
 
-This project uses a **monorepo structure** with three TypeScript packages:
+**Monorepo** with 3 TypeScript packages + 1 Rust tool:
 
 ```
-butterfly-lady/
-├── packages/
-│   ├── core/                      # @butterfly-lady/core
-│   │   ├── src/
-│   │   │   ├── dice/              # Roll & Keep logic
-│   │   │   │   ├── dice.ts        # Core dice rolling
-│   │   │   │   ├── parser.ts      # Expression parser
-│   │   │   │   └── index.ts
-│   │   │   ├── types/             # Type definitions
-│   │   │   │   ├── dice.ts
-│   │   │   │   └── index.ts
-│   │   │   └── index.ts           # Main exports
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── bot/                       # @butterfly-lady/bot
-│   │   ├── src/
-│   │   │   ├── commands/          # Discord slash commands
-│   │   │   │   ├── roll.ts
-│   │   │   │   ├── help.ts
-│   │   │   │   └── index.ts
-│   │   │   ├── formatters/        # Discord embeds
-│   │   │   │   ├── rollEmbed.ts
-│   │   │   │   └── index.ts
-│   │   │   ├── types/             # Discord types
-│   │   │   │   ├── commands.ts
-│   │   │   │   └── index.ts
-│   │   │   └── index.ts           # Bot initialization
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   └── backend/                   # @butterfly-lady/backend
-│       ├── src/
-│       │   └── index.ts           # Main entry point
-│       ├── package.json
-│       └── tsconfig.json
+packages/
+├── core/                      # @butterfly-lady/core - Pure L5R logic
+│   ├── src/dice/              # Roll & Keep mechanics
+│   ├── src/probability/       # Probability queries & table loader
+│   ├── src/types/             # Type definitions
+│   └── data/probability-tables.json    # 330 precomputed tables (~200KB)
 │
-├── data/
-│   └── schools.json               # L5R schools (for Phase 4)
-├── docker-compose.yml             # Production Docker setup
-├── docker-compose.dev.yml         # Development Docker setup
-├── Dockerfile                     # Multi-stage build (prod + dev)
-├── package.json                   # Workspace root
-├── pnpm-workspace.yaml            # Workspace configuration
-└── env.example                    # Environment template
+├── bot/                       # @butterfly-lady/bot - Discord layer
+│   ├── src/commands/          # /roll, /prob, /help
+│   ├── src/formatters/        # Rich Discord embeds
+│   └── src/types/             # Command interfaces
+│
+└── backend/                   # @butterfly-lady/backend - Main entry
+    └── src/index.ts           # Startup & env config
+
+tools/probability-calculator/  # Rust Monte Carlo simulator (offline)
 ```
 
-### Package Responsibilities
-
-- **@butterfly-lady/core** - Pure L5R 4th Edition business logic
-  - No Discord dependencies
-  - Reusable dice rolling, parsing, and game mechanics
-  - Can be used by future VTT, web apps, or other clients
-
-- **@butterfly-lady/bot** - Discord integration layer
-  - Discord.js commands and formatters
-  - Bot lifecycle management
-  - Depends on: `@butterfly-lady/core`
-
-- **@butterfly-lady/backend** - Main orchestrator
-  - Environment configuration
-  - Bot startup and shutdown
-  - Signal handling
-  - Depends on: `@butterfly-lady/bot`
-
-### Dependency Graph
+### Package Dependencies
 
 ```
-backend (entry point)
-  └─> bot (Discord integration)
-       └─> core (L5R game logic)
+backend (entry) → bot (Discord) → core (L5R logic)
+                                     ↑
+                       probability-tables.json (static)
 ```
+
+**Key Points:**
+- **core**: Platform-agnostic L5R logic (dice, probability, types) - works in Node.js & browsers
+- **bot**: Discord commands (/roll, /prob, /help) + rich embeds
+- **backend**: Startup, env config, signal handling
+- **tools**: Offline Rust calculator generates probability tables (run once)
 
 ## Development
 
@@ -286,6 +279,17 @@ export const myCommand: Command = {
 2. Export from `packages/core/src/index.ts`
 3. Use in bot commands: `import { yourFunction } from '@butterfly-lady/core'`
 
+### Regenerating Probability Tables (Rare)
+
+If you need to regenerate the probability tables (e.g., changed simulation parameters):
+
+```bash
+cd tools/probability-calculator
+cargo run --release
+```
+
+This will regenerate `packages/core/data/probability-tables.json` (~200KB, takes ~30 seconds).
+
 ### TypeScript
 
 The project uses strict TypeScript configuration:
@@ -320,14 +324,15 @@ The project uses strict TypeScript configuration:
 
 ## Tech Stack
 
-- **Language**: TypeScript (strict mode)
-- **Runtime**: Node.js 20
+- **Language**: TypeScript (strict mode, ESNext modules)
+- **Runtime**: Node.js 20+ (requires 20.10+ for JSON import attributes)
 - **Framework**: Discord.js v14
 - **Package Manager**: pnpm (with workspaces)
 - **Architecture**: Monorepo with 3 packages
 - **Containerization**: Docker & Docker Compose
 - **Build Tool**: TypeScript Compiler (tsc)
 - **Random Number Generation**: Seedrandom (OS-entropy based)
+- **Probability Calculator**: Rust (offline tool, not in runtime)
 
 ## Architecture Benefits
 
@@ -335,19 +340,26 @@ The monorepo structure provides:
 
 1. **Clean Separation** - Business logic separated from Discord integration
 2. **Reusable Core** - Core L5R logic can be used in VTT, web apps, etc.
-3. **Type Safety** - Shared types across all packages
-4. **Independent Testing** - Test core logic without Discord mocks
-5. **Future Ready** - Easy to add VTT server, frontend, statistics packages
+3. **Cross-Platform** - Static JSON imports work in Node.js and browsers (Vite/Webpack)
+4. **Type Safety** - Shared types across all packages
+5. **Independent Testing** - Test core logic without Discord mocks
+6. **Future Ready** - Probability system ready for React VTT (Phase 5)
 
 ## Contributing
 
-This bot is in active development. Planned features:
-- Phase 3B: Statistics and probability analysis
+This bot is in active development. 
+
+**Completed:**
+- ✅ Phase 1: Basic roll system
+- ✅ Phase 2: Advanced mechanics (emphasis, raises, Ten Dice Rule)
+- ✅ Phase 3B: Probability & statistics with precomputed tables
+
+**Planned:**
 - Phase 3C: Character sheet management
 - Phase 4: AI-generated maps and tokens
 - Phase 5: VTT server with React + Pixi.js frontend
 
-See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for detailed Phase 5 plans.
+See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for detailed Phase 5 plans and [`STATUS.md`](STATUS.md) for current implementation status.
 
 ## Reference
 
