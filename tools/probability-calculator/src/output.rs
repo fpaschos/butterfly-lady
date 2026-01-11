@@ -110,7 +110,7 @@ pub fn format_file_size(bytes: u64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
+
 
     #[test]
     fn test_create_probability_table() {
