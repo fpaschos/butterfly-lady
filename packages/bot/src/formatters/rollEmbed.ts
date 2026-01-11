@@ -1,5 +1,11 @@
 import { EmbedBuilder } from 'discord.js';
-import { RollResult, ExplosionMode, formatDieResult } from '@butterfly-lady/core';
+import { 
+  RollResult, 
+  ExplosionMode, 
+  formatDieResult,
+  queryProbability,
+  applyTenDiceRule
+} from '@butterfly-lady/core';
 
 /**
  * Create a Discord embed for a roll result with Phase 2 features
@@ -151,32 +157,76 @@ function buildExpressionString(result: RollResult): string {
  * Build footer text
  */
 function buildFooter(result: RollResult): string | null {
-  const parts: string[] = [];
+  const probabilityParts: string[] = [];
+  const diceSummaryParts: string[] = [];
+  
+  // Probability info (only if TN exists)
+  if (result.options.targetNumber !== undefined) {
+    try {
+      // Apply Ten Dice Rule to get the actual roll/keep used
+      const tenDiceResult = applyTenDiceRule(result.expression.roll, result.expression.keep);
+      const roll = tenDiceResult.roll;
+      const keep = tenDiceResult.keep;
+      const modifier = result.expression.modifier + tenDiceResult.bonus;
+      
+      // Calculate effective TN including raises
+      const effectiveTN = result.options.targetNumber + (result.options.calledRaises || 0) * 5;
+      
+      // Query probability tables
+      const probResult = queryProbability({
+        roll,
+        keep,
+        explosionMode: result.options.explosionMode || ExplosionMode.Skilled,
+        emphasis: result.options.emphasisThreshold !== undefined,
+        targetNumber: effectiveTN,
+        modifier
+      });
+      
+      // Format: 📊 Success: 65.3% • Avg: 28.5 (σ 8.2)
+      const successPct = (probResult.successRate * 100).toFixed(1);
+      const avg = probResult.table.statistics.mean.toFixed(1);
+      const sigma = probResult.table.statistics.stddev.toFixed(1);
+      
+      probabilityParts.push(`📊 Success: ${successPct}% • Avg: ${avg} (σ ${sigma})`);
+    } catch (error) {
+      // Silently ignore probability errors (e.g., if tables not loaded)
+      console.warn('Could not calculate probability for roll:', error);
+    }
+  }
   
   // Explosion mode info
   if (result.options.explosionMode === ExplosionMode.Unskilled) {
-    parts.push('⚪ Unskilled (no explosions)');
+    diceSummaryParts.push('⚪ Unskilled (no explosions)');
   } else if (result.options.explosionMode === ExplosionMode.Mastery) {
     const explosionCount = result.allDice.filter(die => die.exploded).length;
     if (explosionCount > 0) {
-      parts.push(`✨ Mastery: ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (9s and 10s)`);
+      diceSummaryParts.push(`✨ Mastery: ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (9s and 10s)`);
     } else {
-      parts.push('✨ Mastery mode (9s and 10s explode)');
+      diceSummaryParts.push('✨ Mastery mode (9s and 10s explode)');
     }
   } else {
     // Skilled mode
     const explosionCount = result.allDice.filter(die => die.exploded).length;
     if (explosionCount > 0) {
-      parts.push(`💥 ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (10s)`);
+      diceSummaryParts.push(`💥 ${explosionCount} ${explosionCount === 1 ? 'die' : 'dice'} exploded (10s)`);
     }
   }
   
   // Emphasis reroll info
   if (result.emphasisRerolls && result.emphasisRerolls.length > 0) {
-    parts.push(`🔄 Emphasis: ${result.emphasisRerolls.length} ${result.emphasisRerolls.length === 1 ? 'die' : 'dice'} rerolled (≤${result.options.emphasisThreshold})`);
+    diceSummaryParts.push(`🔄 Emphasis: ${result.emphasisRerolls.length} ${result.emphasisRerolls.length === 1 ? 'die' : 'dice'} rerolled (≤${result.options.emphasisThreshold})`);
   }
   
-  return parts.length > 0 ? parts.join(' • ') : null;
+  // Combine parts with newline separator between probability and dice summary
+  const allParts: string[] = [];
+  if (probabilityParts.length > 0) {
+    allParts.push(probabilityParts.join(' • '));
+  }
+  if (diceSummaryParts.length > 0) {
+    allParts.push(diceSummaryParts.join(' • '));
+  }
+  
+  return allParts.length > 0 ? allParts.join('\n') : null;
 }
 
 /**

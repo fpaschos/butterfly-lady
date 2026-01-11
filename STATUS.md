@@ -5,7 +5,7 @@
 **Phase 1:** ✅ Complete (Basic Roll & Keep)  
 **Phase 2:** ✅ Complete (Advanced L5R Mechanics)  
 **Phase 3A:** ✅ Complete (Monorepo Restructure)  
-**Phase 3B (Step 1):** ✅ Complete (Rust Probability Calculator)
+**Phase 3B:** ✅ Complete (Statistics & Probability)
 
 ## 🎯 What Works
 
@@ -22,6 +22,15 @@ All core functionality is implemented and working:
 - ✅ Raises (r:N with auto-calculation)
 - ✅ Emphasis (e defaults to e:1, or e:N)
 - ✅ Detailed output (always on)
+- ✅ Probability statistics (inline with /roll when TN exists)
+
+### Probability Analysis (Phase 3B)
+- ✅ `/prob` command for detailed probability analysis
+- ✅ Success rate calculation vs Target Number
+- ✅ Statistical information (mean, stddev, median, percentiles)
+- ✅ Interactive "Roll This!" button (execute roll from probability view)
+- ✅ Inline probability stats in `/roll` output (when TN exists)
+- ✅ Support for all explosion modes and emphasis
 
 ### Architecture & Technical
 - ✅ Monorepo structure (3 packages: core, bot, backend)
@@ -43,7 +52,7 @@ All core functionality is implemented and working:
 /roll 7k4 m              # Mastery, 9s and 10s explode
 
 # Target Numbers
-/roll 5k3 tn:15          # Roll vs TN 15
+/roll 5k3 tn:15          # Roll vs TN 15 (shows probability stats)
 /roll 7k4+10 tn:20       # With modifier
 
 # Raises
@@ -60,6 +69,11 @@ All core functionality is implemented and working:
 
 # Ten Dice Rule
 /roll 12k5 m tn:30       # Auto-converts to 10k6
+
+# Probability Analysis
+/prob 5k3 tn:25          # Show probability statistics
+/prob 7k4 m e tn:30      # With explosion modes and emphasis
+# Click "🎲 Roll This!" button to execute the roll
 ```
 
 ## 📦 Project Structure
@@ -125,16 +139,22 @@ Test these commands to verify everything works:
 
 # Target Numbers
 /roll 5k3 tn:15      # Should show success/failure
+/roll 5k3 tn:25      # Should show probability stats in footer
 
 # Raises
 /roll 8k5 tn:20 r:2  # Should show called raises
 
 # Combined
 /roll 8k5 m e:2 tn:25 r:2
-# Should show everything
+# Should show everything including probability stats
 
 # Footer display
 /roll 5k3 m e        # Should show both mastery and emphasis in footer
+
+# Probability commands
+/prob 5k3 tn:25      # Should show probability analysis
+/prob 7k4 m e tn:30  # Should include "Roll This!" button
+# Click button to execute the roll
 ```
 
 ## 📊 Code Quality
@@ -156,9 +176,11 @@ Test these commands to verify everything works:
 - ✅ **Phase 1**: Basic Roll & Keep dice system
 - ✅ **Phase 2**: Advanced L5R 4th Edition mechanics (explosions, TNs, raises, emphasis)
 - ✅ **Phase 3A**: Monorepo restructure (clean architecture for VTT integration)
-- 🚧 **Phase 3B**: Statistics & probability (Step 1/2 complete)
+- ✅ **Phase 3B**: Statistics & probability
   - ✅ Step 1: Rust probability calculator (generates lookup tables)
-  - ⏳ Step 2: `/prop` command (query precomputed probabilities)
+  - ✅ Step 2: `/prob` command (query precomputed probabilities)
+  - ✅ Interactive features (button to roll from probability view)
+  - ✅ Inline probability stats in `/roll` output
 
 ### Architecture Ready For:
 - **Phase 3C**: Character management
@@ -167,34 +189,31 @@ Test these commands to verify everything works:
 
 ## 🎯 Next Steps
 
-### Phase 3B Step 1: Generate Probability Tables
+### Phase 3C: Character Management
 
-Run the Rust calculator to generate probability lookup tables:
+Next major phase: Character sheet storage and management:
+- Character creation and editing
+- Character sheet storage (SQLite/JSON)
+- Roll with character stats (e.g., `/roll character:samurai skill:kenjutsu`)
+- Character-based emphasis (automatic from school/skill)
+- Discord commands for character management
 
-```bash
-cd tools/probability-calculator
-cargo run --release
-```
+### Phase 4: Image Generation
 
-This will generate `packages/core/data/probability-tables.json` containing:
-- 330 roll configurations (55 pools × 3 explosion modes × 2 emphasis states)
-- Cumulative probabilities: P(total ≥ TN) for each configuration
-- Statistics: mean, stddev, median, percentiles
-- Expected runtime: 2-5 minutes (100M+ simulations)
+AI-generated content integration:
+- Battle map generation
+- Token/character portrait generation
+- Integration with future VTT
+- Discord commands for generation requests
 
-### Phase 3B Step 2: Implement `/prop` Command
+### Phase 5: VTT Server
 
-Next step: Create Discord command to query precomputed probabilities:
-- `/prop 5k3 tn:25` → show P(success), mean, percentiles
-- `/prop 7k4 m e tn:30` → support all explosion modes and emphasis
-- Fast O(1) lookups from generated tables
-
-### Other Next Steps
-
-1. **Continue bot development**: Test commands in Discord
-2. **Phase 3C**: Character management
-3. **Phase 4**: Image generation
-4. **Phase 5**: See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for VTT server plans
+Full Virtual Tabletop integration:
+- See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for architecture details
+- GameStateManager for state management
+- WebSocket server for real-time updates
+- React + Pixi.js frontend
+- Bidirectional Discord ↔ VTT synchronization
 
 ---
 

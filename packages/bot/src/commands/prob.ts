@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { 
+  SlashCommandBuilder, 
+  ChatInputCommandInteraction,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} from 'discord.js';
 import { 
   parseRollExpression,
   ExplosionMode, 
@@ -74,7 +80,20 @@ export const probCommand: Command = {
         );
       }
 
-      await interaction.reply({ embeds: [embed] });
+      // Create button to execute the roll
+      const rollButton = new ButtonBuilder()
+        .setCustomId(`roll:${expressionInput}`)
+        .setEmoji('🎲')
+        .setLabel('Roll')
+        .setStyle(ButtonStyle.Primary);
+
+      const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(rollButton);
+
+      await interaction.reply({ 
+        embeds: [embed],
+        components: [row]
+      });
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to calculate probabilities';
