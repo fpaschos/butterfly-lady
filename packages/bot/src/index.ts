@@ -9,6 +9,7 @@ import {
 import { Command } from './types/commands.js';
 import { rollCommand } from './commands/roll.js';
 import { helpCommand } from './commands/help.js';
+import { probCommand } from './commands/prob.js';
 
 // Re-export Client for use by backend
 export type { Client } from 'discord.js';
@@ -45,7 +46,8 @@ export async function startBot(config: BotConfig): Promise<Client> {
   // Register commands
   const commands: Command[] = [
     rollCommand,
-    helpCommand
+    helpCommand,
+    probCommand
   ];
 
   // Add commands to collection
