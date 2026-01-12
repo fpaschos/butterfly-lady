@@ -1,5 +1,0 @@
-phase4-map-generation/models/checkpoints/*.safetensors
-phase4-map-generation/models/ControlNet/*.safetensors
-phase4-map-generation/models/Lora/*.safetensors
-phase4-map-generation/stable-diffusion-webui/venv/
-phase4-map-generation/stable-diffusion-webui/repositories/

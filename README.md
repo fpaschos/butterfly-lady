@@ -1,6 +1,11 @@
-# 🦋 Butterfly Lady
+# 🦋 Butterfly Lady - Community Edition
 
-A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice rolling with the Roll & Keep system.
+> **Note:** This is the **public community edition** (Phase 3B).  
+> Advanced features (character management, VTT, image generation) are developed separately.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice rolling with the Roll & Keep system and probability analysis.
 
 ## Features
 
@@ -23,13 +28,23 @@ A Discord bot for **Legend of the Five Rings 4th Edition** RPG, featuring dice r
 - **🐳 Docker Support** - Easy local deployment with Docker Compose
 - **🎯 Seedrandom RNG** - OS-entropy based randomness with testing support
 
-### 🔮 Coming Soon
-- **Phase 3C**: Character Management - Store character sheets and quick stats
-- **Phase 4**: Image Generation - AI-generated maps and tokens
-- **Phase 5**: VTT Integration - Virtual tabletop with React + Pixi.js
-  - Real-time map and token management
-  - Discord ↔ VTT synchronization
-  - Fog of war and measurement tools
+### 📦 What's Included (Public Release)
+
+✅ **Core Features** (Phase 1-3B):
+- Roll & Keep dice system with all L5R 4th Edition mechanics
+- Probability calculations and success rate analysis
+- Discord slash commands with rich embeds
+- Docker deployment support
+- Full TypeScript monorepo architecture
+
+### 🔒 Not Included in Public Release
+
+The following features are under private development:
+- **Character Management** (Phase 3C)
+- **AI Image Generation** (Phase 4) 
+- **Virtual Tabletop** (Phase 5)
+
+These may be released in the future as separate products or extensions.
 
 ## Quick Start
 
@@ -347,19 +362,23 @@ The monorepo structure provides:
 
 ## Contributing
 
-This bot is in active development. 
+This is the **community edition** of Butterfly Lady (Phase 3B).
 
-**Completed:**
+**What's Complete:**
 - ✅ Phase 1: Basic roll system
 - ✅ Phase 2: Advanced mechanics (emphasis, raises, Ten Dice Rule)
 - ✅ Phase 3B: Probability & statistics with precomputed tables
 
-**Planned:**
-- Phase 3C: Character sheet management
-- Phase 4: AI-generated maps and tokens
-- Phase 5: VTT server with React + Pixi.js frontend
+**Contributions Welcome:**
+- Bug fixes for dice rolling mechanics
+- Improvements to probability calculations
+- Discord embed enhancements
+- Documentation improvements
+- Code quality and performance optimizations
 
-See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for detailed Phase 5 plans and [`STATUS.md`](STATUS.md) for current implementation status.
+See [`STATUS.md`](STATUS.md) for current implementation status.
+
+**Note:** Advanced features (characters, VTT, image generation) are developed in a separate private repository.
 
 ## Reference
 

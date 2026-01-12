@@ -1,4 +1,7 @@
-# 🦋 Butterfly Lady - Current Status
+# 🦋 Butterfly Lady - Community Edition
+
+> **This is the public community edition (Phase 3B)**  
+> Advanced features are developed in a separate private repository.
 
 ## ✅ Implementation Complete
 
@@ -182,38 +185,33 @@ Test these commands to verify everything works:
   - ✅ Interactive features (button to roll from probability view)
   - ✅ Inline probability stats in `/roll` output
 
-### Architecture Ready For:
-- **Phase 3C**: Character management
-- **Phase 4**: Image generation (AI maps/tokens)
-- **Phase 5**: VTT Server (can add `packages/vtt-server` and `packages/frontend`)
+## 🎯 Public Release Scope
 
-## 🎯 Next Steps
+This repository contains **Phase 1-3B only** - a fully functional L5R Discord bot with:
+- ✅ Complete Roll & Keep system
+- ✅ All explosion modes and mechanics
+- ✅ Probability analysis and statistics
+- ✅ Rich Discord embeds
+- ✅ Docker deployment
 
-### Phase 3C: Character Management
+## 🔮 Future Features (Private Development)
 
-Next major phase: Character sheet storage and management:
-- Character creation and editing
-- Character sheet storage (SQLite/JSON)
-- Roll with character stats (e.g., `/roll character:samurai skill:kenjutsu`)
-- Character-based emphasis (automatic from school/skill)
-- Discord commands for character management
+Advanced features are under development in a separate private repository:
+- **Character Management** (Phase 3C)
+- **AI Image Generation** (Phase 4)
+- **Virtual Tabletop** (Phase 5)
 
-### Phase 4: Image Generation
+These features may be released as separate products in the future.
 
-AI-generated content integration:
-- Battle map generation
-- Token/character portrait generation
-- Integration with future VTT
-- Discord commands for generation requests
+## 💡 Contributing to Community Edition
 
-### Phase 5: VTT Server
+We welcome contributions to the public bot:
+- 🐛 Bug fixes
+- ⚡ Performance improvements
+- 📚 Documentation enhancements
+- ✨ Improvements to existing Phase 1-3B features
 
-Full Virtual Tabletop integration:
-- See [`VTT_ARCHITECTURE.md`](VTT_ARCHITECTURE.md) for architecture details
-- GameStateManager for state management
-- WebSocket server for real-time updates
-- React + Pixi.js frontend
-- Bidirectional Discord ↔ VTT synchronization
+Please open an issue or pull request on GitHub!
 
 ---
 
